@@ -35,6 +35,7 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
   #include "Arduino.h"
+  #include "DistanceGP2Y0A21YK_LUTs.h"
 #else
   #include "WProgram.h"
   #include <pins_arduino.h>

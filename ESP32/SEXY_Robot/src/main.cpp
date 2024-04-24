@@ -3,7 +3,7 @@
 #include <VL53L0X.h>
 #include <MFRC522.h> 
 #include <Wire.h>
-//#include <DistanceGP2Y0A21YK.h>
+#include <DistanceGP2Y0A21YK.h>
 
 
 
@@ -19,6 +19,9 @@ MFRC522::MIFARE_Key key = {.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 
 // Lidar PINOUT
 
+static constexpr uint16_t PIN_XSHUT_FRONT = 33;
+static constexpr uint16_t PIN_SCL_FRONT = 22;
+static constexpr uint16_t PIN_SDA_FRONT = 21;
 static constexpr uint16_t PIN_XSHUT_FRONT = 33;
 static constexpr uint16_t ADDR_LIDAR_FRONT= 0x70;
 
@@ -40,6 +43,7 @@ VL53L0X LidarFront;
 MFRC522 mfrc522(PIN_RFID_SDA, RST_PIN);   // Create MFRC522 instance.
 
 
+DistanceGP2Y0A21YK Dist;
 
 
 void Lidar_Setup(){
@@ -68,7 +72,7 @@ mfrc522.PCD_Init();           // Init MFRC522 card
 Serial.begin(115200);
 Wire.begin();
 Lidar_Setup();
-
+  Dist.begin(0);
 }
 
 
@@ -151,34 +155,9 @@ bool readCard(byte target_block, byte read_buffer[], byte length){              
 
 void loop() {
     // Look for new cards if not found rerun the loop function
-//   if ( ! mfrc522.PICC_IsNewCardPresent()) {
-//     return;
-//   }
-//   // read from the card if not found rerun the loop function
-//   if ( ! mfrc522.PICC_ReadCardSerial())
-//   {
-//     return;
-//   }
-//   Serial.println("card detected. Writing data");
-//   writeBlock(1,data); //write data1 to the block 1 of the tag
-//   Serial.println("reading data from the tag");
-//   readCard(1, buffer,sizeof(buffer));   //read block 1
-//   //print data
-//   Serial.print("read block 1: ");
-//   for (int j = 0 ; j < 14 ; j++)
-//   {
-//     Serial.print(buffer[j]);
-//   }
-
-
-    
-    
-    if(readCard(TARGET_BLOCK, buffer, sizeof(buffer))){
-        for(int i=0; i < sizeof(buffer); i++){
-            Serial.print(buffer[i]);
-            Serial.print(" ");
-        }
-        Serial.println("");
-    }
+  uint32_t distance = Dist.getDistanceCentimeter();
+  Serial.print("\nDistance in centimers: ");
+  Serial.print(distance);  
+  delay(500); //make it readable
 }
 

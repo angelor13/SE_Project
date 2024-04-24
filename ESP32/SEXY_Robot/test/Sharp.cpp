@@ -12,7 +12,7 @@ int distance;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Dist.begin(0);
 }
 
