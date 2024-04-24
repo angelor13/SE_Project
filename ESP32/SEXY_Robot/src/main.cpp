@@ -3,7 +3,7 @@
 #include <VL53L0X.h>
 #include <MFRC522.h> 
 #include <Wire.h>
-#include <DistanceGP2Y0A21YK.h>
+//#include <DistanceGP2Y0A21YK.h>
 
 
 
@@ -22,8 +22,8 @@ MFRC522::MIFARE_Key key = {.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 static constexpr uint16_t PIN_XSHUT_FRONT = 33;
 static constexpr uint16_t PIN_SCL_FRONT = 22;
 static constexpr uint16_t PIN_SDA_FRONT = 21;
-static constexpr uint16_t PIN_XSHUT_FRONT = 33;
-static constexpr uint16_t ADDR_LIDAR_FRONT= 0x70;
+#define PIN_XSHUT_FRONT  33
+static constexpr uint16_t ADDR_LIDAR_FRONT= 0x71;
 
 static constexpr uint32_t DIST_LIDAR_MIN = 0;
 static constexpr uint32_t DIST_LIDAR_MAX = 2600;
@@ -43,7 +43,7 @@ VL53L0X LidarFront;
 MFRC522 mfrc522(PIN_RFID_SDA, RST_PIN);   // Create MFRC522 instance.
 
 
-DistanceGP2Y0A21YK Dist;
+//DistanceGP2Y0A21YK Dist;
 
 
 void Lidar_Setup(){
@@ -57,7 +57,6 @@ void Lidar_Setup(){
     LidarFront.setTimeout(500);
     LidarFront.init(true);
     LidarFront.startContinuous(0);
-
 }
 
 uint16_t GetFrontDistance(){
@@ -72,7 +71,7 @@ mfrc522.PCD_Init();           // Init MFRC522 card
 Serial.begin(115200);
 Wire.begin();
 Lidar_Setup();
-  Dist.begin(0);
+  //Dist.begin(0);
 }
 
 
@@ -155,9 +154,9 @@ bool readCard(byte target_block, byte read_buffer[], byte length){              
 
 void loop() {
     // Look for new cards if not found rerun the loop function
-  uint32_t distance = Dist.getDistanceCentimeter();
-  Serial.print("\nDistance in centimers: ");
-  Serial.print(distance);  
-  delay(500); //make it readable
+    uint32_t distance=GetFrontDistance();
+    Serial.println("Distância medida:"+(String)distance);
+    delay(50);
+
 }
 
