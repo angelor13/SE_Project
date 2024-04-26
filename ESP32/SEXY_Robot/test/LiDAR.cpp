@@ -9,7 +9,7 @@ static constexpr uint16_t PIN_XSHUT_FRONT = 33;
 static constexpr uint16_t PIN_SCL_FRONT = 22;
 static constexpr uint16_t PIN_SDA_FRONT = 21;
 static constexpr uint16_t PIN_XSHUT_FRONT = 33;
-static constexpr uint16_t ADDR_LIDAR_FRONT= 0x70;
+static constexpr uint16_t ADDR_LIDAR_FRONT= 0x71;
 
 static const uint32_t DIST_LIDAR_MIN = 0;
 static const uint32_t DIST_LIDAR_MAX = 2600;
