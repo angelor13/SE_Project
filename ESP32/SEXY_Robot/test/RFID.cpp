@@ -84,6 +84,17 @@ bool readCard(byte target_block, byte read_buffer[], byte length){              
     return true;
 }
 
+
+bool Tag_Detected(){
+    if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return false;
+  }
+    if ( ! mfrc522.PICC_ReadCardSerial()){
+    return false;
+  }
+    return true;
+}
+
 void loop() {
         // Look for new cards if not found rerun the loop function
 //   if ( ! mfrc522.PICC_IsNewCardPresent()) {
