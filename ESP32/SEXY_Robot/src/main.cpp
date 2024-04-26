@@ -3,17 +3,18 @@
 #include <VL53L0X.h>
 #include <MFRC522.h> 
 #include <Wire.h>
+#include <SEXY_ESP32.h>
 //#include <DistanceGP2Y0A21YK.h>
 
 
 
 
 // RFID PINOUT
-constexpr uint8_t RST_PIN = INT8_MAX;   
-constexpr uint8_t PIN_RFID_SDA=5;
-constexpr uint8_t PIN_RFID_SCK=18;
-constexpr uint8_t PIN_RFID_MISO=19;
-constexpr uint8_t PIN_RFID_MOSI=23;
+static constexpr uint8_t RST_PIN = INT8_MAX;   
+static constexpr uint8_t PIN_RFID_SDA=5;
+static constexpr uint8_t PIN_RFID_SCK=18;
+static constexpr uint8_t PIN_RFID_MISO=19;
+static constexpr uint8_t PIN_RFID_MOSI=23;
 
 MFRC522::MIFARE_Key key = {.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 
@@ -22,7 +23,7 @@ MFRC522::MIFARE_Key key = {.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 static constexpr uint16_t PIN_XSHUT_FRONT = 33;
 static constexpr uint16_t PIN_SCL_FRONT = 22;
 static constexpr uint16_t PIN_SDA_FRONT = 21;
-#define PIN_XSHUT_FRONT  33
+static constexpr uint16_t PIN_XSHUT_FRONT = 33;
 static constexpr uint16_t ADDR_LIDAR_FRONT= 0x71;
 
 static constexpr uint32_t DIST_LIDAR_MIN = 0;
@@ -44,9 +45,12 @@ MFRC522 mfrc522(PIN_RFID_SDA, RST_PIN);   // Create MFRC522 instance.
 
 
 //DistanceGP2Y0A21YK Dist;
-
+SEXY_ESP32 bot;
 
 void Lidar_Setup(){
+
+
+
     pinMode(PIN_XSHUT_FRONT, OUTPUT);
 
     digitalWrite(PIN_XSHUT_FRONT, LOW);
@@ -65,7 +69,7 @@ uint16_t GetFrontDistance(){
 }
 
 void setup(){
-
+bot.begin();
 SPI.begin();                  // Init SPI bus
 mfrc522.PCD_Init();           // Init MFRC522 card    
 Serial.begin(115200);

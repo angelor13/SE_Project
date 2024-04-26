@@ -1,11 +1,11 @@
 #include <SPI.h>
 #include <MFRC522.h> 
 // RFID PINOUT
-constexpr uint8_t RST_PIN = INT8_MAX;   
-constexpr uint8_t PIN_RFID_SDA=5;
-constexpr uint8_t PIN_RFID_SCK=18;
-constexpr uint8_t PIN_RFID_MISO=19;
-constexpr uint8_t PIN_RFID_MOSI=23;
+static constexpr uint8_t RST_PIN = INT8_MAX;   
+static constexpr uint8_t PIN_RFID_SDA=5;
+static constexpr uint8_t PIN_RFID_SCK=18;
+static constexpr uint8_t PIN_RFID_MISO=19;
+static constexpr uint8_t PIN_RFID_MOSI=23;
 MFRC522 mfrc522(PIN_RFID_SDA, RST_PIN);
 MFRC522::MIFARE_Key key = {.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 byte data[12] = {"Embebed-Sys"};
@@ -19,7 +19,7 @@ void setup() {
     mfrc522.PCD_Init();           // Init MFRC522 card
 }
 
-byte TARGET_BLOCK = 60;
+static byte TARGET_BLOCK = 60;
 byte buffer[18];
 
 int writeBlock(int blockNumber, byte arrayAddress[]){
