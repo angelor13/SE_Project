@@ -25,7 +25,9 @@ VL53L0X SEXY_ESP32::LidarFront;
 
 //     analogWriteResolution(PWM_RESOLUTION_BITS);
 // }
-
+/**
+ * @brief Initialize the Lidar front
+ */
 void SEXY_ESP32::setupLidar() {
     Wire.begin();
 
@@ -39,6 +41,13 @@ void SEXY_ESP32::setupLidar() {
     LidarFront.init(true);
     LidarFront.startContinuous(0);
 }
+
+
+
+
+/**
+ * @brief Initialize the RFID.
+ */
 
 void SEXY_ESP32::setupRFID() {
   SPI.begin(); 
@@ -118,14 +127,90 @@ void SEXY_ESP32::begin() {
  * @brief Get the front LiDAR distance value, in millimeters.
  * @return value between [0, 2600] 
  */
-uint16_t SEXY_ESP32::GetFrontDistance() {
+uint16_t SEXY_ESP32::getFrontDistance() {
     uint16_t result = LidarFront.readRangeContinuousMillimeters();
     return constrain(result, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
 }
+/**
+  @brief Read RFID Tags
+ */
+bool SEXY_ESP32 ::readCard(byte target_block, byte read_buffer[], byte length){                     // Buffer size must be 18 bytes
+    if ( ! RFID_device.PICC_IsNewCardPresent()) { // Card present?
+        return false;
+    }
+    if ( ! RFID_device.PICC_ReadCardSerial()) {  // read UID
+   
+        return false;
+    }
+  static MFRC522::MIFARE_Key key_tag={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
+    MFRC522::StatusCode status;
 
+    // Authenticate using key A
+    Serial.println(F("Authenticating using key A..."));
+    status = (MFRC522::StatusCode) RFID_device.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A,target_block, &key_tag, &(RFID_device.uid));
+    if (status != MFRC522::STATUS_OK) {
+        Serial.print(F("PCD_Authenticate() failed: "));
+        Serial.println(RFID_device.GetStatusCodeName(status));
+        return false;
+    }
 
+    //byte length = 18;
+    status = (MFRC522::StatusCode)RFID_device.MIFARE_Read(target_block, read_buffer, &length);
 
+    if (status != MFRC522::STATUS_OK) {
+        Serial.print(F("Tag read Failed: "));
+        Serial.println(RFID_device.GetStatusCodeName(status));
+        return false;
+    }
+    // Halt PICC
+    RFID_device.PICC_HaltA();
+    // Stop encryption on PCD
+    RFID_device.PCD_StopCrypto1();
+    return true;
+}
+/**
+  @brief Write in RFID Tags
+ */
+int SEXY_ESP32 ::writeBlock(int blockNumber, byte arrayAddress[]){
+  //check if the block number corresponds to data block or triler block, rtuen with error if it's trailer block.
+  int largestModulo4Number = blockNumber / 4 * 4;
+  int trailerBlock = largestModulo4Number + 3; //determine trailer block for the sector
+  if (blockNumber > 2 && (blockNumber + 1) % 4 == 0) {
+    Serial.print(blockNumber);
+    Serial.println(" is a trailer block: Error");
+    return 2;
+  }
+  //authentication
+  MFRC522::StatusCode status;
+  static MFRC522::MIFARE_Key key_tag={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
+  status =(MFRC522::StatusCode) RFID_device.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, trailerBlock, &key_tag, &(RFID_device.uid));
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print("Authentication failed: ");
+    Serial.println(RFID_device.GetStatusCodeName(status));
+    return 3;//return "3" as error message
+  }
+  //writing data to the block
+  status = RFID_device.MIFARE_Write(blockNumber, arrayAddress, 16);
+  //status = mfrc522.MIFARE_Write(9, value1Block, 16);
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print("Data write failed: ");
+    Serial.println(RFID_device.GetStatusCodeName(status));
+    return 4;//return "4" as error message
+  }
+}
 
+/**
+  @brief detect RFID Tags
+ */
+bool SEXY_ESP32:: Tag_Detected(){
+    if ( ! RFID_device.PICC_IsNewCardPresent()) {
+    return false;
+  }
+    if ( ! RFID_device.PICC_ReadCardSerial()){
+    return false;
+  }
+    return true;
+}
 /**
   @brief Prints a string via serial and via WiFi
  */

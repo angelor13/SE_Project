@@ -5,7 +5,7 @@
 
 VL53L0X LidarFront;
 
-static constexpr uint16_t PIN_XSHUT_FRONT = 33;
+
 static constexpr uint16_t PIN_SCL_FRONT = 22;
 static constexpr uint16_t PIN_SDA_FRONT = 21;
 static constexpr uint16_t PIN_XSHUT_FRONT = 33;
@@ -27,7 +27,7 @@ void Lidar_Setup(){
     LidarFront.startContinuous(0);
 }
 
-uint16_t GetFrontDistance(){
+uint16_t getFrontDistance(){
     uint16_t result = LidarFront.readRangeContinuousMillimeters();
     return constrain(result, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
 }
@@ -41,7 +41,7 @@ Lidar_Setup();
 }
 
 void loop(){
-    uint32_t distance=GetFrontDistance();
+    uint32_t distance=getFrontDistance();
     Serial.println("Distância medida:"+(String)distance);
 
 }
