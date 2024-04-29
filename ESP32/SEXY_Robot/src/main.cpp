@@ -12,6 +12,7 @@ SEXY_ESP32 bot;
 
 
 void setup(){
+  
 bot.begin();
 // SPI.begin();                  // Init SPI bus
   //Dist.begin(0);
