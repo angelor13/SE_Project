@@ -8,18 +8,19 @@
 #include <VL53L0X.h>
 #include <MFRC522.h>
 #include <Wire.h>
+#include <Adafruit_ADS1X15.h>
 
 
 class SEXY_ESP32 {
+
 private:
+    static byte RxBuffer[8];
+    static byte TxBuffer[8];
+
     // Pin constants
 
 
     // Motor Pins
-
-
-
-
     static constexpr uint16_t PIN_MOTOR_L_1 = 17;
     static constexpr uint16_t PIN_MOTOR_L_2 = 16;
     static constexpr uint16_t PIN_MOTOR_R_1 = 13;
@@ -70,7 +71,7 @@ private:
     static constexpr uint16_t VSPI_MOSi=23;
     static constexpr uint16_t VSPI_SCLK=18;
     static constexpr uint16_t VSPI_SS=5;
-    static constexpr uint16_t BUFFER_SIZE=4;
+    static constexpr uint16_t BUFFER_SIZE=8;
 
 
 
@@ -80,6 +81,7 @@ private:
     // Tasks Handles_t
 
     static TaskHandle_t taskReadRFIDHandle;
+    static TaskHandle_t taskTransmitSPiComHandle;
     // static void taskMonitorBatteryValue(void*);
 
 
@@ -87,6 +89,7 @@ private:
     // TaskFunctions_t
 
     static void taskReadRFID(void*);
+    static void taskTransmitSPICom(void*);
 
 
     // Internal variables
@@ -104,7 +107,7 @@ private:
     static void setupLidar();
     static void setupRFID();
     static void setupMotors();
-
+    static void setupSPI();
 
 public:
     // RFID constants
@@ -115,7 +118,7 @@ public:
     static constexpr MFRC522::MIFARE_Key key={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 
     static void begin();
-    static void SPIsetup();
+ 
     static void moveMotorLeft(int16_t);
     static void moveMotorRight(int16_t);
     static void moveMotors(int16_t, int16_t);

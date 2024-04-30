@@ -4,12 +4,16 @@
 bool SEXY_ESP32::isTagDetected=false;
 
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
-
+TaskHandle_t SEXY_ESP32::taskTransmitSPiComHandle;
 
 
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 
 VL53L0X SEXY_ESP32::LidarFront;
+
+
+byte SEXY_ESP32::RxBuffer[8];
+byte SEXY_ESP32::TxBuffer[8];
 
 // Implementation
 
@@ -39,16 +43,16 @@ void SEXY_ESP32::setupLidar() {
     LidarFront.startContinuous(0);
 }
 
-void SEXY_ESP32::SPIsetup(){
-  pinMode(VSPI_SS,OUTPUT);
-  pinMode(VSPI_MISO,OUTPUT);
-  pinMode(VSPI_MOSi,OUTPUT);
-  pinMode(VSPI_SCLK,OUTPUT);
+// void SEXY_ESP32::setupSPI(){
+//   pinMode(VSPI_SS,OUTPUT);
+//   pinMode(VSPI_MISO,OUTPUT);
+//   pinMode(VSPI_MOSi,OUTPUT);
+//   pinMode(VSPI_SCLK,OUTPUT);
 
-  SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
-}
+//   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
+//   SPI.setBitOrder(MSBFIRST);
+//   SPI.setDataMode(SPI_MODE0);
+// }
 /**
  * @brief Initialize the RFID.
  */
@@ -66,8 +70,9 @@ void SEXY_ESP32::begin() {
     setupLidar();
     setupRFID();
     Serial.begin(115200);
-    //SPIsetup();
-    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 1);
+    //setupSPI();
+    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
+    xTaskCreatePinnedToCore(taskTransmitSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskTransmitSPiComHandle, 1);
 }
 
 /**
@@ -249,6 +254,14 @@ void SEXY_ESP32::printI2C() {
     Serial.println(" device(s).");
 }
 
+void SEXY_ESP32::taskTransmitSPICom(void*){
+  while(1){
+    digitalWrite(VSPI_SS, LOW);
+    SPI.transferBytes(TxBuffer,RxBuffer,BUFFER_SIZE);
+    digitalWrite(VSPI_SS, HIGH);
+    delay(10);
+  }
+}
 
 void SEXY_ESP32:: taskReadRFID(void*){
   while(1){

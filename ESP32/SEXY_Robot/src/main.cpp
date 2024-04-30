@@ -22,7 +22,8 @@ SPI.begin();                  // Init SPI bus
 
 void loop() {
     // Look for new cards if not found rerun the loop function
-Serial.println(bot.getTagDetected());
-
+    if(bot.getTagDetected()){
+      Serial.println("Detected!");
+    }
 }
 
