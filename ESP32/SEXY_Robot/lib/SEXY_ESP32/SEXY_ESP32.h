@@ -38,7 +38,7 @@ private:
 
     // LIDAR constants
 
-    // Right Sensor 1
+    // Left Sensor 1
     static constexpr uint16_t PIN_VP_LEFT=36;
 
     // Front Sensor 2
@@ -49,7 +49,7 @@ private:
     // static constexpr uint16_t PIN_SDA_FRONT = 21;
     // static constexpr uint16_t PIN_XSHUT_FRONT=33;
 
-    // Left Sensor 3
+    // Right Sensor 3
     static constexpr uint16_t PIN_VP_RIGHT=34;
 
 
@@ -63,7 +63,7 @@ private:
     // ADC  Pins
     
     static constexpr uint16_t PIN_ADC_SCL=22;
-    static constexpr uint16_t PIN_ADC_SDA=21;
+    static constexpr uint16_t PIN_ADC_SDA=21;   
 
     // SPI Pins
 
@@ -77,6 +77,12 @@ private:
 
     static bool isTagDetected;
 
+    // Robot Velocity
+
+    static float L,r,dotphiL,dotphiR,vx,w;
+
+
+
 
     // Tasks Handles_t
 
@@ -87,7 +93,6 @@ private:
 
 
     // TaskFunctions_t
-
     static void taskReadRFID(void*);
     static void taskTransmitSPICom(void*);
 
@@ -103,7 +108,7 @@ private:
     // Declarations
 
 
-
+    static void setupSharps();
     static void setupLidar();
     static void setupRFID();
     static void setupMotors();
@@ -113,7 +118,7 @@ public:
     // RFID constants
     static const byte TARGET_BLOCK= 60;
     static byte buffer[18];
-    static constexpr uint8_t N_SECTORS =15;   //Sectors number
+    static constexpr uint8_t N_SECTORS=15;   //Sectors number
 
     static constexpr MFRC522::MIFARE_Key key={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
 
@@ -122,23 +127,31 @@ public:
     static void moveMotorLeft(int16_t);
     static void moveMotorRight(int16_t);
     static void moveMotors(int16_t, int16_t);
+    static void stopMotors();
 
-    //static uint16_t getLidarLeftDistance();
+    static uint16_t getLeftDistance();
     static uint16_t getFrontDistance();
-    //static uint16_t getLidarRightDistance();
+    static uint16_t getRightDistance();
+
+
     static bool readCard(byte target_block, byte read_buffer[], byte length);
-
     static int writeBlock(int blockNumber, byte arrayAddress[]);
-
     static bool Tag_Detected();
-
-    static void print(const char*);
 
     static void printI2C();
 
     static bool getTagDetected();
 
+    // Calculation Functions
+    static float calculatedDotphiL(const float vx,const float w, const float L,const float r);
+    static float calculatedDotphiR(const float vx,const float w, const float L,const float r);
+    static float calculatedVx(const float dotphiR,const float dotphiLL,const float r);
+    static float calculatedW(const float dotphiR,const float dotphiL,const float L,const float r);
 
+    static float getDotphiL();
+    static float getDotphiR();
+    static float getVx();
+    static float getW();
 };
 
 #endif
