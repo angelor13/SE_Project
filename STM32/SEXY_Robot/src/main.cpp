@@ -13,15 +13,14 @@
 #define MOTOR_A_PWM_Pin GPIO_PIN_8
 #define MOTOR_A_PWM_GPIO_Port GPIOB
 
-// // Função para definir a direção do motor
+void Motor_Set_Speed(uint16_t speed) {
+
+}// // Função para definir a direção do motor
 // void Motor_Set_Direction(uint8_t dir) {
 //   HAL_GPIO_WritePin(MOTOR_A_IN1_GPIO_Port, MOTOR_A_IN1_Pin, (dir & 0x01) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 //   HAL_GPIO_WritePin(MOTOR_A_IN2_GPIO_Port, MOTOR_A_IN2_Pin, (dir & 0x02) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 // }
 
-void Motor_Set_Speed(uint16_t speed) {
-
-}
 
 
 void setup() {
@@ -43,10 +42,10 @@ void loop() {
     digitalWrite(PB1, 0);
 
     digitalWrite(PA15, 1);
-    digitalWrite(PA7, 1);
+    digitalWrite(PA7, 0);
 
     digitalWrite(PB6, 1);
-    digitalWrite(PB5, 1);
+    digitalWrite(PB5, 0);
 
     digitalWrite(PB8, 1);
     digitalWrite(PB9, 1);
