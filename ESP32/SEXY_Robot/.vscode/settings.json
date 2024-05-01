@@ -2,6 +2,7 @@
     "files.associations": {
         "pid_controller": "c",
         "istream": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "new": "cpp"
     }
 }

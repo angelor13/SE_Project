@@ -13,9 +13,9 @@
 
 class SEXY_ESP32 {
 
-private:
-    static byte RxBuffer[4];
-    static byte TxBuffer[4];
+private:                        // Index Map:
+    static byte RxBuffer[4];    //  0 -> dotphiL        1-> dotphiR         2->             3->
+    static byte TxBuffer[4];    //  0 -> MotorL_PWM     1-> MotorR_PWM      2->             3->
 
     // Pin constants
 
@@ -64,7 +64,7 @@ private:
 
 
     // ADC  Pins
-    
+    static constexpr uint16_t ADDR_ADC=0x48;
     static constexpr uint16_t PIN_ADC_SCL=22;
     static constexpr uint16_t PIN_ADC_SDA=21;   
 
@@ -74,7 +74,7 @@ private:
     static constexpr uint16_t VSPI_MOSi=23;
     static constexpr uint16_t VSPI_SCLK=18;
     static constexpr uint16_t VSPI_SS=5;
-    static constexpr uint16_t BUFFER_SIZE=8;
+    static constexpr uint16_t BUFFER_SIZE=4;
 
 
 
@@ -84,20 +84,21 @@ private:
 
     static float L,r,dotphiL,dotphiR,vx,w;
 
-
+    // Tansmit SPI COM
+    static void transmitSPIcom();
 
 
     // Tasks Handles_t
 
     static TaskHandle_t taskReadRFIDHandle;
-    static TaskHandle_t taskTransmitSPiComHandle;
-    // static void taskMonitorBatteryValue(void*);
+    static TaskHandle_t taskReceiveSPiComHandle;
+    
 
 
 
     // TaskFunctions_t
     static void taskReadRFID(void*);
-    static void taskTransmitSPICom(void*);
+    static void taskReceiveSPICom(void*);
 
 
     // Internal variables
@@ -106,11 +107,11 @@ private:
     // Devices
     static MFRC522 RFID_device;
     static VL53L0X LidarFront;
-
+    static Adafruit_ADS1115 gasADC;
 
     // Declarations
 
-
+    static void setupADC();
     static void setupSharps();
     static void setupLidar();
     static void setupRFID();
@@ -118,6 +119,8 @@ private:
     static void setupSPI();
 
 public:
+
+
     // RFID constants
     static const byte TARGET_BLOCK= 60;
     static byte buffer[18];
@@ -136,6 +139,7 @@ public:
     static uint16_t getFrontDistance();
     static uint16_t getRightDistance();
 
+    static uint16_t getADCvalue();
 
     static bool readCard(byte target_block, byte read_buffer[], byte length);
     static int writeBlock(int blockNumber, byte arrayAddress[]);

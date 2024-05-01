@@ -1,6 +1,8 @@
 #ifndef VL53L0X_h
 #define VL53L0X_h
 
+#include <Arduino.h>
+
 class VL53L0X
 {
   public:

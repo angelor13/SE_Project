@@ -4,18 +4,23 @@
 bool SEXY_ESP32::isTagDetected=false;
 
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
-TaskHandle_t SEXY_ESP32::taskTransmitSPiComHandle;
+TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
 
 
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 
 VL53L0X SEXY_ESP32::LidarFront;
-
+Adafruit_ADS1115 SEXY_ESP32::gasADC;
 
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
 
-float SEXY_ESP32::L,r,dotphiL=0,dotphiR=0,vx=0,w=0;
+float SEXY_ESP32::L;
+float SEXY_ESP32::r;
+float SEXY_ESP32::dotphiL=0;
+float SEXY_ESP32::dotphiR=0;
+float SEXY_ESP32::vx=0;
+float SEXY_ESP32::w=0;
 
 
 
@@ -58,10 +63,17 @@ void SEXY_ESP32::setupSPI(){
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
 }
+
+
+/**
+ * @brief Initialize the ADC
+ */
+void SEXY_ESP32::setupADC(){
+gasADC.begin(ADDR_ADC);
+}
 /**
  * @brief Initialize the RFID.
  */
-
 void SEXY_ESP32::setupRFID() {
   SPI.begin(); 
   RFID_device.PCD_Init();
@@ -72,13 +84,14 @@ void SEXY_ESP32::setupRFID() {
  */
 void SEXY_ESP32::begin() {
     //setupMotors();
+    setupADC();
     setupSharps();
     setupLidar();
     setupRFID();
     Serial.begin(115200);
     setupSPI();
     xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
-    xTaskCreatePinnedToCore(taskTransmitSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskTransmitSPiComHandle, 1);
+    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 1);
 }
 
 /**
@@ -87,15 +100,8 @@ void SEXY_ESP32::begin() {
  */
 void SEXY_ESP32::moveMotorLeft(int16_t duty) {
     duty = constrain(duty , -DUTY_MOTOR_MAX, DUTY_MOTOR_MAX);
-
-    if (duty <= 0) {
-        digitalWrite(PIN_MOTOR_L_1, LOW);
-    } else {
-        duty = DUTY_MOTOR_MAX - duty;
-        digitalWrite(PIN_MOTOR_L_1, HIGH);
-    }
-
-    analogWrite(PIN_MOTOR_L_2, abs(duty));
+    TxBuffer[0]=(byte)duty;
+    transmitSPIcom();
 }
 
 /**
@@ -104,15 +110,8 @@ void SEXY_ESP32::moveMotorLeft(int16_t duty) {
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t duty) {
     duty = constrain(duty, -DUTY_MOTOR_MAX, DUTY_MOTOR_MAX);
-
-    if (duty <= 0) {
-        digitalWrite(PIN_MOTOR_R_1, LOW);
-    } else {
-        duty = DUTY_MOTOR_MAX - duty;
-        digitalWrite(PIN_MOTOR_R_1, HIGH);
-    }
-
-    analogWrite(PIN_MOTOR_R_2, abs(duty));
+    TxBuffer[1]=(byte)duty;
+    transmitSPIcom();
 }
 
 /**
@@ -157,11 +156,17 @@ uint16_t SEXY_ESP32::getRightDistance(){
   uint16_t value=analogRead(PIN_VP_RIGHT);
   return constrain(map(value,0,4095,100,800),100,800);
 }
+
+uint16_t SEXY_ESP32::getADCvalue(){
+  uint16_t value=gasADC.readADC_SingleEnded(0);
+  return value;
+}
+
 /**
   @brief Read RFID Tags
 */
 
-bool SEXY_ESP32 ::readCard(byte target_block, byte read_buffer[], byte length){                     // Buffer size must be 18 bytes
+bool SEXY_ESP32::readCard(byte target_block, byte read_buffer[], byte length){                     // Buffer size must be 18 bytes
     if ( ! RFID_device.PICC_IsNewCardPresent()) { // Card present?
         return false;
     }
@@ -198,7 +203,7 @@ bool SEXY_ESP32 ::readCard(byte target_block, byte read_buffer[], byte length){ 
 /**
   @brief Write in RFID Tags
  */
-int SEXY_ESP32 ::writeBlock(int blockNumber, byte arrayAddress[]){
+int SEXY_ESP32::writeBlock(int blockNumber, byte arrayAddress[]){
   //check if the block number corresponds to data block or triler block, rtuen with error if it's trailer block.
   int largestModulo4Number = blockNumber / 4 * 4;
   int trailerBlock = largestModulo4Number + 3; //determine trailer block for the sector
@@ -224,6 +229,7 @@ int SEXY_ESP32 ::writeBlock(int blockNumber, byte arrayAddress[]){
     Serial.println(RFID_device.GetStatusCodeName(status));
     return 4;//return "4" as error message
   }
+  return -1;
 }
 
 /**
@@ -266,13 +272,22 @@ void SEXY_ESP32::printI2C() {
     Serial.println(" device(s).");
 }
 
-void SEXY_ESP32::taskTransmitSPICom(void*){
+void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
     digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(TxBuffer,RxBuffer,BUFFER_SIZE);
+    SPI.transferBytes(NULL,RxBuffer,BUFFER_SIZE);
     digitalWrite(VSPI_SS, HIGH);
-    delay(10);
+    dotphiL=RxBuffer[0];
+    dotphiR=RxBuffer[1];
+    Serial.println("Hello Transmition");
+    delay(50);
   }
+}
+
+void SEXY_ESP32::transmitSPIcom(){
+  digitalWrite(VSPI_SS, LOW);
+  SPI.transferBytes(TxBuffer,NULL,BUFFER_SIZE);
+  digitalWrite(VSPI_SS, HIGH);
 }
 
 void SEXY_ESP32:: taskReadRFID(void*){
