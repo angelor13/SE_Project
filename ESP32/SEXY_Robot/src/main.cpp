@@ -14,6 +14,6 @@ void loop() {
   if(bot.getTagDetected()){
     Serial.println("Detected!");
   }
-  
+
 }
 

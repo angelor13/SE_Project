@@ -78,6 +78,11 @@ private:                        // Index Map:
     static constexpr uint16_t BUFFER_SIZE=4;
 
 
+    // WIFI constants
+
+    static constexpr char ssid[]="";
+    static constexpr char password[]="";
+
 
     static bool isTagDetected;
 
