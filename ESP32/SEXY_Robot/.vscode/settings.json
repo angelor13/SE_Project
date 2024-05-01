@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "pid_controller": "c"
+        "pid_controller": "c",
+        "istream": "cpp",
+        "ostream": "cpp"
     }
 }
