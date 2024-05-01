@@ -12,8 +12,8 @@ MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 VL53L0X SEXY_ESP32::LidarFront;
 
 
-byte SEXY_ESP32::RxBuffer[8];
-byte SEXY_ESP32::TxBuffer[8];
+byte SEXY_ESP32::RxBuffer[4];
+byte SEXY_ESP32::TxBuffer[4];
 
 float SEXY_ESP32::L,r,dotphiL=0,dotphiR=0,vx=0,w=0;
 
@@ -338,7 +338,7 @@ float SEXY_ESP32::getVx(){
   @brief Get W
  */
 float SEXY_ESP32::getW(){
-  return dotphiL;
+  return w;
 }
 
 

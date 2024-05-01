@@ -14,8 +14,8 @@
 class SEXY_ESP32 {
 
 private:
-    static byte RxBuffer[8];
-    static byte TxBuffer[8];
+    static byte RxBuffer[4];
+    static byte TxBuffer[4];
 
     // Pin constants
 
@@ -45,6 +45,9 @@ private:
     static constexpr uint16_t PIN_SCL_FRONT = 33;
     static constexpr uint16_t PIN_SDA_FRONT = 32;
     static constexpr uint16_t PIN_XSHUT_FRONT=17;
+
+    // TO test in our robot
+
     // static constexpr uint16_t PIN_SCL_FRONT = 22;
     // static constexpr uint16_t PIN_SDA_FRONT = 21;
     // static constexpr uint16_t PIN_XSHUT_FRONT=33;
