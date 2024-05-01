@@ -8,7 +8,6 @@ SEXY_ESP32 bot;
 
 void setup() {
     bot.begin();
-    bot.setupRFID();           // Init MFRC522 card
 }
 
 void loop() {

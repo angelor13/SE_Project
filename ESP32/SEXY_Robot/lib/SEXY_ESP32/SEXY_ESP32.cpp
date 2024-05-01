@@ -19,10 +19,6 @@ float SEXY_ESP32::L,r,dotphiL=0,dotphiR=0,vx=0,w=0;
 
 
 
-
-
-
-
 // Implementation
 void SEXY_ESP32::setupMotors() {
     pinMode(PIN_MOTOR_L_1, OUTPUT);
@@ -57,16 +53,11 @@ void SEXY_ESP32::setupSharps(){
     pinMode(PIN_VP_RIGHT,INPUT);
 }
 
-// void SEXY_ESP32::setupSPI(){
-//   pinMode(VSPI_SS,OUTPUT);
-//   pinMode(VSPI_MISO,OUTPUT);
-//   pinMode(VSPI_MOSi,OUTPUT);
-//   pinMode(VSPI_SCLK,OUTPUT);
-
-//   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
-//   SPI.setBitOrder(MSBFIRST);
-//   SPI.setDataMode(SPI_MODE0);
-// }
+void SEXY_ESP32::setupSPI(){
+  SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
+  SPI.setBitOrder(MSBFIRST);
+  SPI.setDataMode(SPI_MODE0);
+}
 /**
  * @brief Initialize the RFID.
  */
@@ -85,7 +76,7 @@ void SEXY_ESP32::begin() {
     setupLidar();
     setupRFID();
     Serial.begin(115200);
-    //setupSPI();
+    setupSPI();
     xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
     xTaskCreatePinnedToCore(taskTransmitSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskTransmitSPiComHandle, 1);
 }
@@ -248,8 +239,6 @@ bool SEXY_ESP32:: Tag_Detected(){
     Serial.println("Tag detected");
     return true;
 }
-
-
 /**
   @brief Print all detected I2C devices.
  */
@@ -333,8 +322,6 @@ float SEXY_ESP32::calculatedW(const float dotphiR,const float dotphiL,const floa
 float SEXY_ESP32::getDotphiL(){
   return dotphiL;
 }
-
-
 /**
   @brief Get dot phiR
  */
@@ -347,8 +334,6 @@ float SEXY_ESP32::getDotphiR(){
 float SEXY_ESP32::getVx(){
   return vx;
 }
-
-
 /**
   @brief Get W
  */
