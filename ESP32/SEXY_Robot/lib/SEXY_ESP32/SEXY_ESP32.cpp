@@ -4,16 +4,22 @@
 bool SEXY_ESP32::isTagDetected=false;
 
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
-
+TaskHandle_t SEXY_ESP32::taskTransmitSPiComHandle;
 
 
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 
 VL53L0X SEXY_ESP32::LidarFront;
 
+
+byte SEXY_ESP32::RxBuffer[8];
+byte SEXY_ESP32::TxBuffer[8];
+
+float SEXY_ESP32::L,r,dotphiL=0,dotphiR=0,vx=0,w=0;
+
+
+
 // Implementation
-
-
 void SEXY_ESP32::setupMotors() {
     pinMode(PIN_MOTOR_L_1, OUTPUT);
     pinMode(PIN_MOTOR_L_2, OUTPUT);
@@ -28,6 +34,7 @@ void SEXY_ESP32::setupMotors() {
 void SEXY_ESP32::setupLidar() {
     Wire.begin();
 
+    // LiDAR
     pinMode(PIN_XSHUT_FRONT, OUTPUT);
     digitalWrite(PIN_XSHUT_FRONT, LOW);
     delay(200);
@@ -39,12 +46,14 @@ void SEXY_ESP32::setupLidar() {
     LidarFront.startContinuous(0);
 }
 
-void SEXY_ESP32::SPIsetup(){
-  pinMode(VSPI_SS,OUTPUT);
-  pinMode(VSPI_MISO,OUTPUT);
-  pinMode(VSPI_MOSi,OUTPUT);
-  pinMode(VSPI_SCLK,OUTPUT);
 
+void SEXY_ESP32::setupSharps(){
+    // Sharps 
+    pinMode(PIN_VP_LEFT,INPUT);
+    pinMode(PIN_VP_RIGHT,INPUT);
+}
+
+void SEXY_ESP32::setupSPI(){
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
@@ -63,11 +72,13 @@ void SEXY_ESP32::setupRFID() {
  */
 void SEXY_ESP32::begin() {
     //setupMotors();
+    setupSharps();
     setupLidar();
     setupRFID();
     Serial.begin(115200);
-    //SPIsetup();
-    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 1);
+    setupSPI();
+    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
+    xTaskCreatePinnedToCore(taskTransmitSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskTransmitSPiComHandle, 1);
 }
 
 /**
@@ -115,21 +126,41 @@ void SEXY_ESP32::moveMotors(int16_t dutyMotorLeft, int16_t dutyMotorRight) {
 }
 
 /**
- * @brief Get the right LiDAR distance value, in millimeters.
- * @return value between [0, 2600] (mm)
+  @brief Stop Motors
  */
-
+void SEXY_ESP32::stopMotors(){
+  moveMotorLeft(0);
+  moveMotorRight(0);
+}
+/**
+ * @brief Get the left distance value, in millimeters.
+ * @return value between [100, 800] (mm)
+ */
+uint16_t SEXY_ESP32::getLeftDistance(){
+  uint16_t value=analogRead(PIN_VP_LEFT);
+  return constrain(map(value,0,4095,100,800),100,800);
+}
 /**
  * @brief Get the front LiDAR distance value, in millimeters.
  * @return value between [0, 2600] 
  */
 uint16_t SEXY_ESP32::getFrontDistance() {
-    uint16_t result = LidarFront.readRangeContinuousMillimeters();
-    return constrain(result, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
+    uint16_t distance = LidarFront.readRangeContinuousMillimeters();
+    return constrain(distance, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
+}
+
+/**
+ * @brief Get the left distance value, in millimeters.
+ * @return value between [100, 800] (mm)
+ */
+uint16_t SEXY_ESP32::getRightDistance(){
+  uint16_t value=analogRead(PIN_VP_RIGHT);
+  return constrain(map(value,0,4095,100,800),100,800);
 }
 /**
   @brief Read RFID Tags
- */
+*/
+
 bool SEXY_ESP32 ::readCard(byte target_block, byte read_buffer[], byte length){                     // Buffer size must be 18 bytes
     if ( ! RFID_device.PICC_IsNewCardPresent()) { // Card present?
         return false;
@@ -209,20 +240,6 @@ bool SEXY_ESP32:: Tag_Detected(){
     return true;
 }
 /**
-  @brief Prints a string via serial and via WiFi
- */
-void SEXY_ESP32::print(const char* str){
-    Serial.print(str);
-
-    // for(uint8_t i = 0; i < MAX_TCP_CLIENTS; i++){
-    //     if(tcpClients[i] != nullptr){
-    //         tcpClients[i]->add(str, strlen(str));
-    //         tcpClients[i]->send();
-    //     }
-    // }
-}
-
-/**
   @brief Print all detected I2C devices.
  */
 void SEXY_ESP32::printI2C() {
@@ -249,6 +266,14 @@ void SEXY_ESP32::printI2C() {
     Serial.println(" device(s).");
 }
 
+void SEXY_ESP32::taskTransmitSPICom(void*){
+  while(1){
+    digitalWrite(VSPI_SS, LOW);
+    SPI.transferBytes(TxBuffer,RxBuffer,BUFFER_SIZE);
+    digitalWrite(VSPI_SS, HIGH);
+    delay(10);
+  }
+}
 
 void SEXY_ESP32:: taskReadRFID(void*){
   while(1){
@@ -261,6 +286,65 @@ void SEXY_ESP32:: taskReadRFID(void*){
 bool SEXY_ESP32 ::getTagDetected(){
   return isTagDetected;
 }
+
 /**
-  @brief Print (to serial ONLY) the detected RFID reader firmware versions. Useful for detecting connection issues.
+  @brief Calculate dot phiL
  */
+float SEXY_ESP32::calculatedDotphiL(const float vx,const float w, const float L,const float r){
+  return (vx - (L/2)*w)/r;
+}
+
+/**
+  @brief Calculate dot phiR
+ */
+float SEXY_ESP32::calculatedDotphiR(const float vx,const float w, const float L,const float r){
+  return (vx + (L/2)*w)/r;
+}
+
+/**
+  @brief Calculate V_x
+ */
+float SEXY_ESP32::calculatedVx(const float dotphiR,const float dotphiL,const float r){
+  return (dotphiR+dotphiL)*r/2;
+}
+
+
+/**
+  @brief Calculate W
+ */
+float SEXY_ESP32::calculatedW(const float dotphiR,const float dotphiL,const float L,const float r){
+  return (dotphiR-dotphiL)*r/L;
+}
+
+/**
+  @brief Get dot phiL
+ */
+float SEXY_ESP32::getDotphiL(){
+  return dotphiL;
+}
+/**
+  @brief Get dot phiR
+ */
+float SEXY_ESP32::getDotphiR(){
+  return dotphiR;
+}
+/**
+  @brief Get Vx
+ */
+float SEXY_ESP32::getVx(){
+  return vx;
+}
+/**
+  @brief Get W
+ */
+float SEXY_ESP32::getW(){
+  return dotphiL;
+}
+
+
+
+
+
+
+
+
