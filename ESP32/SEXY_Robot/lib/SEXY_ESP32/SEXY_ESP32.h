@@ -151,8 +151,8 @@ public:
     static float calculatedVx(const float dotphiR,const float dotphiLL,const float r);
     static float calculatedW(const float dotphiR,const float dotphiL,const float L,const float r);
 
-    static float getDotphiL();
-    static float getDotphiR();
+    static float getDotphiL();          // Maybe unused
+    static float getDotphiR();          // Maybe unused
     static float getVx();
     static float getW();
 };

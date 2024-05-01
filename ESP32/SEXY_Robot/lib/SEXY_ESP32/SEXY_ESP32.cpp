@@ -288,14 +288,14 @@ bool SEXY_ESP32 ::getTagDetected(){
 }
 
 /**
-  @brief Calculate dot phiL
+  @brief Calculate dot phiL  | Maybe unused
  */
 float SEXY_ESP32::calculatedDotphiL(const float vx,const float w, const float L,const float r){
   return (vx - (L/2)*w)/r;
 }
 
 /**
-  @brief Calculate dot phiR
+  @brief Calculate dot phiR  | Maybe unused
  */
 float SEXY_ESP32::calculatedDotphiR(const float vx,const float w, const float L,const float r){
   return (vx + (L/2)*w)/r;
@@ -307,7 +307,6 @@ float SEXY_ESP32::calculatedDotphiR(const float vx,const float w, const float L,
 float SEXY_ESP32::calculatedVx(const float dotphiR,const float dotphiL,const float r){
   return (dotphiR+dotphiL)*r/2;
 }
-
 
 /**
   @brief Calculate W
@@ -332,13 +331,13 @@ float SEXY_ESP32::getDotphiR(){
   @brief Get Vx
  */
 float SEXY_ESP32::getVx(){
-  return vx;
+  return (float)calculatedVx(dotphiR,dotphiL,r);
 }
 /**
   @brief Get W
  */
 float SEXY_ESP32::getW(){
-  return w;
+  return (float)calculatedW(dotphiR,dotphiL,L,r);
 }
 
 
