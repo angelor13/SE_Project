@@ -9,7 +9,8 @@
 #include <MFRC522.h>
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
-
+#include <WiFi.h>
+//#include <WiFiUdp.h>
 
 class SEXY_ESP32 {
 
@@ -64,7 +65,7 @@ private:                        // Index Map:
 
 
     // ADC  Pins
-    static constexpr uint16_t ADDR_ADC=0x48;
+    static constexpr uint16_t ADDR_ADC=0x48;    //0x49
     static constexpr uint16_t PIN_ADC_SCL=22;
     static constexpr uint16_t PIN_ADC_SDA=21;   
 
@@ -108,9 +109,10 @@ private:                        // Index Map:
     static MFRC522 RFID_device;
     static VL53L0X LidarFront;
     static Adafruit_ADS1115 gasADC;
+    //static WiFiUDP wifi;
 
     // Declarations
-
+    static void setupWifi();
     static void setupADC();
     static void setupSharps();
     static void setupLidar();

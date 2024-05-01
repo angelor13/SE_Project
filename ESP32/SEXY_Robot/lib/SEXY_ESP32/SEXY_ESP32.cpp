@@ -11,6 +11,7 @@ MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 
 VL53L0X SEXY_ESP32::LidarFront;
 Adafruit_ADS1115 SEXY_ESP32::gasADC;
+//WiFiUDP SEXY_ESP32::wifi;
 
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
@@ -25,6 +26,8 @@ float SEXY_ESP32::w=0;
 
 
 // Implementation
+
+
 void SEXY_ESP32::setupMotors() {
     pinMode(PIN_MOTOR_L_1, OUTPUT);
     pinMode(PIN_MOTOR_L_2, OUTPUT);
@@ -50,21 +53,29 @@ void SEXY_ESP32::setupLidar() {
     LidarFront.init(true);
     LidarFront.startContinuous(0);
 }
+/**
+ * @brief Initialize Wifi
+ */
+void SEXY_ESP32::setupWifi(){
+WiFi.mode(WIFI_STA);
+}
 
-
+/**
+ * @brief Initialize the Lidar front
+ */
 void SEXY_ESP32::setupSharps(){
     // Sharps 
     pinMode(PIN_VP_LEFT,INPUT);
     pinMode(PIN_VP_RIGHT,INPUT);
 }
-
+/**
+ * @brief Initialize the SPI
+ */
 void SEXY_ESP32::setupSPI(){
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
 }
-
-
 /**
  * @brief Initialize the ADC
  */
