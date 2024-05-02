@@ -105,6 +105,7 @@ private:                        // Index Map:
     // TaskFunctions_t
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
+    
 
 
     // Internal variables
