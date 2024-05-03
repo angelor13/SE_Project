@@ -11,9 +11,11 @@ bot.printI2C();
 
 
 void loop() {
-  if(bot.getTagDetected()){
-    Serial.println("Detected!");
-  }
+  // if(bot.getTagDetected()){
+  //   Serial.println("Detected!");
+  // }
+  bot.moveMotors(0,0);
+  delay(100);
 
 }
 

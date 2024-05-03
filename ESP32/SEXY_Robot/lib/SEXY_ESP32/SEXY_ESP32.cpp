@@ -112,7 +112,6 @@ void SEXY_ESP32::begin() {
     xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
     xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 1);
 }
-
 /**
   @brief Control left motor speed.
   @param duty desired duty cycle for the motor, value between [-511, 511]
@@ -298,7 +297,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
     digitalWrite(VSPI_SS, HIGH);
     dotphiL=RxBuffer[0];
     dotphiR=RxBuffer[1];
-    Serial.println("Hello Transmition");
+    Serial.println("Data Transmition");
     delay(50);
   }
 }
@@ -307,6 +306,7 @@ void SEXY_ESP32::transmitSPIcom(){
   digitalWrite(VSPI_SS, LOW);
   SPI.transferBytes(TxBuffer,NULL,BUFFER_SIZE);
   digitalWrite(VSPI_SS, HIGH);
+  Serial.println("Data Received");
 }
 
 void SEXY_ESP32:: taskReadRFID(void*){

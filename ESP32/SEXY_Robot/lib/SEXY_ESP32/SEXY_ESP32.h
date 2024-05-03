@@ -71,10 +71,19 @@ private:                        // Index Map:
 
     // SPI Pins
 
-    static constexpr uint16_t VSPI_MISO=19;
-    static constexpr uint16_t VSPI_MOSi=23;
-    static constexpr uint16_t VSPI_SCLK=18;
+    // static constexpr uint16_t VSPI_MISO=19;
+    // static constexpr uint16_t VSPI_MOSi=23;
+    // static constexpr uint16_t VSPI_SCLK=18;
+    // static constexpr uint16_t VSPI_SS=5;
+
+    // To use on breadboard
+
+    static constexpr uint16_t VSPI_MISO=33;
+    static constexpr uint16_t VSPI_MOSi=25;
+    static constexpr uint16_t VSPI_SCLK=26;
     static constexpr uint16_t VSPI_SS=5;
+
+    
     static constexpr uint16_t BUFFER_SIZE=4;
 
 
@@ -126,6 +135,7 @@ private:                        // Index Map:
     static void setupMotors();
     static void setupSPI();
 
+
 public:
 
 
@@ -167,6 +177,7 @@ public:
     static float getDotphiR();          // Maybe unused
     static float getVx();
     static float getW();
+    
 };
 
 #endif
