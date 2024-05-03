@@ -32,7 +32,7 @@ private:                        // Index Map:
 
     // RFID pins
     static constexpr uint8_t RST_PIN = INT8_MAX;   
-    static constexpr uint8_t PIN_RFID_SDA=5;
+    static constexpr uint8_t PIN_RFID_SDA=5;       
     static constexpr uint8_t PIN_RFID_SCK=18;
     static constexpr uint8_t PIN_RFID_MISO=19;
     static constexpr uint8_t PIN_RFID_MOSI=23;
@@ -71,17 +71,17 @@ private:                        // Index Map:
 
     // SPI Pins
 
-    // static constexpr uint16_t VSPI_MISO=19;
-    // static constexpr uint16_t VSPI_MOSi=23;
-    // static constexpr uint16_t VSPI_SCLK=18;
-    // static constexpr uint16_t VSPI_SS=5;
+    static constexpr uint16_t VSPI_MISO=19;
+    static constexpr uint16_t VSPI_MOSi=23;
+    static constexpr uint16_t VSPI_SCLK=18;
+    static constexpr uint16_t VSPI_SS=4;
 
     // To use on breadboard
 
-    static constexpr uint16_t VSPI_MISO=33;
-    static constexpr uint16_t VSPI_MOSi=25;
-    static constexpr uint16_t VSPI_SCLK=26;
-    static constexpr uint16_t VSPI_SS=5;
+    // static constexpr uint16_t VSPI_MISO=33;
+    // static constexpr uint16_t VSPI_MOSi=25;
+    // static constexpr uint16_t VSPI_SCLK=26;
+    // static constexpr uint16_t VSPI_SS=5;
 
     
     static constexpr uint16_t BUFFER_SIZE=4;

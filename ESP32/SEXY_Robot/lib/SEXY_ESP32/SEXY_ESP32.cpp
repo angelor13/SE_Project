@@ -94,7 +94,7 @@ gasADC.begin(ADDR_ADC);
  * @brief Initialize the RFID.
  */
 void SEXY_ESP32::setupRFID() {
-  SPI.begin(); 
+  //SPI.begin(); 
   RFID_device.PCD_Init();
 }
 
@@ -292,20 +292,24 @@ void SEXY_ESP32::printI2C() {
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
+    RFID_device.PCD_AntennaOff();
     digitalWrite(VSPI_SS, LOW);
     SPI.transferBytes(NULL,RxBuffer,BUFFER_SIZE);
     digitalWrite(VSPI_SS, HIGH);
+    RFID_device.PCD_AntennaOn();
     dotphiL=RxBuffer[0];
     dotphiR=RxBuffer[1];
-    Serial.println("Data Transmition");
+    //Serial.println("Data Transmition");
     delay(50);
   }
 }
 
 void SEXY_ESP32::transmitSPIcom(){
+  RFID_device.PCD_AntennaOff();
   digitalWrite(VSPI_SS, LOW);
   SPI.transferBytes(TxBuffer,NULL,BUFFER_SIZE);
   digitalWrite(VSPI_SS, HIGH);
+  RFID_device.PCD_AntennaOn();
   Serial.println("Data Received");
 }
 

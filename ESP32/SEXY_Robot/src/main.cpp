@@ -6,15 +6,15 @@ SEXY_ESP32 bot;
 
 void setup(){
 bot.begin();
-bot.printI2C();               
+         
 }
 
 
 void loop() {
-  // if(bot.getTagDetected()){
-  //   Serial.println("Detected!");
-  // }
-  bot.moveMotors(0,0);
+  if(bot.getTagDetected()){
+    Serial.println("Detected!");
+  }
+  bot.moveMotors(255,200);
   delay(100);
 
 }
