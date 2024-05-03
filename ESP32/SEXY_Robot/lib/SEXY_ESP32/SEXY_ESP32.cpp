@@ -299,7 +299,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
     RFID_device.PCD_AntennaOn();
     dotphiL=RxBuffer[0];
     dotphiR=RxBuffer[1];
-    //Serial.println("Data Transmition");
+    Serial.println("Data Transmition");
     delay(50);
   }
 }

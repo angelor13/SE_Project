@@ -5,8 +5,7 @@ SEXY_ESP32 bot;
 
 
 void setup(){
-bot.begin();
-         
+bot.begin();  
 }
 
 
