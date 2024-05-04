@@ -18,7 +18,7 @@ byte SEXY_ESP32::TxBuffer[4];
 
 float SEXY_ESP32::R=0.5;
 float SEXY_ESP32::L=0.12;
-float SEXY_ESP32::r=0.06;
+float SEXY_ESP32::r=0.03;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;

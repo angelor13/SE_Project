@@ -138,7 +138,7 @@ private:                        // Index Map:
 
 
 public:
-    static constexpr float MAX_DOTPHI=2;
+    static constexpr float MAX_DOTPHI=40;
 
     // RFID constants
     static const byte TARGET_BLOCK= 60;
