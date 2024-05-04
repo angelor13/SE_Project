@@ -21,14 +21,22 @@ void loop() {
 // uint32_t front_distance=bot.getFrontDistance();
 // uint32_t right_distance=bot.getRightDistance();
 
-// long start_millis=millis();
-// float leftPWM=float_map(bot.getDotphiL(),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
-// float rightPWM=float_map(bot.getDotphiR(),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
-// bot.moveMotors(leftPWM,rightPWM);
-// while (millis()-start_millis<=2000)
-// {
 
-// }
+bot.moveMotors(500,500);    // andar os pimeiros 50 cm
+long start_millis=millis();
+while(millis()-start_millis<=1000){
+
+}
+
+
+float leftPWM=float_map(bot.getDotphiL(),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);    // fazer a curva em circunferência
+float rightPWM=float_map(bot.getDotphiR(),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
+bot.moveMotors(leftPWM,rightPWM);
+start_millis=millis();
+while (millis()-start_millis<=1300)
+{
+
+}
 
 }
 
