@@ -32,7 +32,7 @@ private:                        // Index Map:
 
     // RFID pins
     static constexpr uint8_t RST_PIN = INT8_MAX;   
-    static constexpr uint8_t PIN_RFID_SDA=5;       
+    static constexpr uint8_t PIN_RFID_SDA=5;       // pin 4 in robot
     static constexpr uint8_t PIN_RFID_SCK=18;
     static constexpr uint8_t PIN_RFID_MISO=19;
     static constexpr uint8_t PIN_RFID_MOSI=23;
@@ -74,7 +74,7 @@ private:                        // Index Map:
     static constexpr uint16_t VSPI_MISO=19;
     static constexpr uint16_t VSPI_MOSi=23;
     static constexpr uint16_t VSPI_SCLK=18;
-    static constexpr uint16_t VSPI_SS=4;
+    static constexpr uint16_t VSPI_SS=5;
 
     // To use on breadboard
 
@@ -97,8 +97,9 @@ private:                        // Index Map:
 
     // Robot Velocity
 
-    static float L,r,dotphiL,dotphiR,vx,w;
+    static float L,r,dotphiL,dotphiR,vx,w,R;
 
+    
     // Tansmit SPI COM
     static void transmitSPIcom();
 
@@ -137,7 +138,7 @@ private:                        // Index Map:
 
 
 public:
-
+    static constexpr float MAX_DOTPHI=2;
 
     // RFID constants
     static const byte TARGET_BLOCK= 60;

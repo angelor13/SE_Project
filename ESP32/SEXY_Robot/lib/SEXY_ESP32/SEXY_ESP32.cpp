@@ -16,12 +16,14 @@ Adafruit_ADS1115 SEXY_ESP32::gasADC;
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
 
-float SEXY_ESP32::L;
-float SEXY_ESP32::r;
-float SEXY_ESP32::dotphiL=0;
-float SEXY_ESP32::dotphiR=0;
+float SEXY_ESP32::R=0.5;
+float SEXY_ESP32::L=0.12;
+float SEXY_ESP32::r=0.06;
+float SEXY_ESP32::dotphiL;
+float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
-float SEXY_ESP32::w=0;
+float SEXY_ESP32::w=vx/R;
+
 
 
 
