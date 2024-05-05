@@ -22,7 +22,7 @@ float SEXY_ESP32::r=0.03;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
-float SEXY_ESP32::w=vx/R;
+float SEXY_ESP32::w=0;
 
 
 
@@ -352,7 +352,7 @@ float SEXY_ESP32::calculatedVx(const float dotphiR,const float dotphiL,const flo
   @brief Calculate W
  */
 float SEXY_ESP32::calculatedW(const float dotphiR,const float dotphiL,const float L,const float r){
-  return (dotphiR-dotphiL)*r/L;
+ return (dotphiR-dotphiL)*r/L;
 }
 
 /**
@@ -371,14 +371,24 @@ float SEXY_ESP32::getDotphiR(){
   @brief Get Vx
  */
 float SEXY_ESP32::getVx(){
-  return (float)calculatedVx(dotphiR,dotphiL,r);
+  vx=(float)calculatedVx(dotphiR,dotphiL,r);
+  return vx;
 }
 /**
   @brief Get W
  */
 float SEXY_ESP32::getW(){
-  return (float)calculatedW(dotphiR,dotphiL,L,r);
+  w=(float)calculatedW(dotphiR,dotphiL,L,r);
+  return w;
 }
+
+float SEXY_ESP32::getR(float Raio){
+  R=Raio;
+  return R;
+}
+
+
+
 
 
 

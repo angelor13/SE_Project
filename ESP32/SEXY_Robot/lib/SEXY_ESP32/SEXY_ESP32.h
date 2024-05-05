@@ -18,6 +18,8 @@ private:                        // Index Map:
     static byte RxBuffer[4];    //  0 -> dotphiL        1-> dotphiR         2->             3->
     static byte TxBuffer[4];    //  0 -> MotorL_PWM     1-> MotorR_PWM      2->             3->
 
+    
+
     // Pin constants
 
 
@@ -97,7 +99,7 @@ private:                        // Index Map:
 
     // Robot Velocity
 
-    static float L,r,dotphiL,dotphiR,vx,w,R;
+    
 
     
     // Tansmit SPI COM
@@ -138,6 +140,9 @@ private:                        // Index Map:
 
 
 public:
+
+    static float L,r,dotphiL,dotphiR,vx,w,R;
+    
     static constexpr float MAX_DOTPHI=40;
 
     // RFID constants
@@ -178,6 +183,10 @@ public:
     static float getDotphiR();          // Maybe unused
     static float getVx();
     static float getW();
+    static float getR(float Raio);
+
+    // Other functions
+
     
 };
 
