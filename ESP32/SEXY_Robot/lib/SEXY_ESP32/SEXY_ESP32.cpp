@@ -31,9 +31,6 @@ float SEXY_ESP32::w=0;
 SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
 
 
-
-
-
 float SEXY_ESP32::distanceMotorL=0;
 float SEXY_ESP32::distanceMotorR=0;
 
@@ -123,7 +120,7 @@ void SEXY_ESP32::begin() {
     setupRFID();
     Serial.begin(115200);
     setupSPI();
-    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
+    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle,1);
     xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
     //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
     //xTaskCreatePinnedToCore(taskUpdatePosition, "TASK_UpdatePosition", 2000, nullptr, 2, &taskUpdatePositionHandle, 0);
@@ -276,7 +273,6 @@ bool SEXY_ESP32:: Tag_Detected(){
     if ( ! RFID_device.PICC_ReadCardSerial()){
     return false;
   }
-    Serial.println("Tag detected");
     return true;
 }
 /**
@@ -312,15 +308,14 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
     RFID_device.PCD_AntennaOff();
     long current_millis=millis();
     digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(NULL,RxBuffer,BUFFER_SIZE);
+    SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
     digitalWrite(VSPI_SS, HIGH);
     RFID_device.PCD_AntennaOn();
     dotphiL=(float)RxBuffer[0];
     dotphiR=(float)RxBuffer[1];
     //Serial.println("Data Transmition");
-   
-    Serial.println((String)dotphiL);
-    Serial.println((String)dotphiR);
+    Serial.println((String)RxBuffer[0]);
+    Serial.println((String)RxBuffer[1]);
     distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
     distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
     previous_millis=current_millis;
@@ -341,7 +336,6 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 
 
   vec3 atual_pos=vec3(robot_pos.x,robot_pos.y,0);
-
   vec3 dir_left = vec3(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance,0);
   vec3 dir_front = vec3(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance, 0);
   vec3 dir_right = vec3(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance,0);

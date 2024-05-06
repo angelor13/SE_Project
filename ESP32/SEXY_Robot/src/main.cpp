@@ -33,10 +33,12 @@ bot.moveMotors(leftPWM,rightPWM);
 void setup(){
 bot.begin();  
 }
-int32_t rx[2];
+
 
 void loop() {
-  //bot.getTagDetected();
+  // if(bot.getTagDetected()){
+  //   Serial.println("Tag detected");;
+  // }
 
     bot.moveMotors(500,500);
     delay(10); 
