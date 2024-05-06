@@ -33,14 +33,24 @@ bot.moveMotors(leftPWM,rightPWM);
 void setup(){
 bot.begin();  
 }
-
+int32_t rx[2];
 
 void loop() {
   //bot.getTagDetected();
-  for(int i=0;i<=500;i++){
-    bot.moveMotors(i,i);
-    delay(10);
-  }
+
+    bot.moveMotors(500,500);
+    delay(10); 
+  
+  // for(int i=0;i<2;i++){
+  //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
+
+  // }
+  // digitalWrite(5, LOW);
+  // SPI.transferBytes(rx,NULL, sizeof(rx));
+  // digitalWrite(5, HIGH);
+  //   for(int i=0;i<2;i++){
+  //   Serial.println((String)rx[0] + (String)rx[1] );
+  // }
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();

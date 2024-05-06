@@ -123,9 +123,9 @@ void SEXY_ESP32::begin() {
     setupRFID();
     Serial.begin(115200);
     setupSPI();
-    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
-    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 1);
-    xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
+    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
+    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+    //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
     //xTaskCreatePinnedToCore(taskUpdatePosition, "TASK_UpdatePosition", 2000, nullptr, 2, &taskUpdatePositionHandle, 0);
 }
 /**
@@ -315,13 +315,20 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
     SPI.transferBytes(NULL,RxBuffer,BUFFER_SIZE);
     digitalWrite(VSPI_SS, HIGH);
     RFID_device.PCD_AntennaOn();
-    dotphiL=RxBuffer[0];
-    dotphiR=RxBuffer[1];
-    Serial.println("Data Transmition");
+    dotphiL=(float)RxBuffer[0];
+    dotphiR=(float)RxBuffer[1];
+    //Serial.println("Data Transmition");
    
+    Serial.println((String)dotphiL);
+    Serial.println((String)dotphiR);
     distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
     distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
     previous_millis=current_millis;
+
+    // Atulialize robot_pos
+    
+
+
     delay(10);
   }
 }
@@ -346,6 +353,8 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   mapPointCloud.push_back(dir_left);
   mapPointCloud.push_back(dir_front);
   mapPointCloud.push_back(dir_right);
+
+
   delay(10);
 }
 
@@ -353,10 +362,10 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 void SEXY_ESP32::transmitSPIcom(){
   RFID_device.PCD_AntennaOff();
   digitalWrite(VSPI_SS, LOW);
-  SPI.transferBytes(TxBuffer,NULL,BUFFER_SIZE);
+  SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
   digitalWrite(VSPI_SS, HIGH);
   RFID_device.PCD_AntennaOn();
-  Serial.println("Data Received");
+  Serial.println("Data Transmited");
 }
 
 void SEXY_ESP32:: taskReadRFID(void*){

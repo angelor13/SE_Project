@@ -92,7 +92,7 @@ private:                        // Index Map:
     // static constexpr uint16_t VSPI_SS=5;
 
     
-    static constexpr uint16_t BUFFER_SIZE=4;
+    static constexpr uint16_t BUFFER_SIZE=8*4;
 
 
     // WIFI constants
