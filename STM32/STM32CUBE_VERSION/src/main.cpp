@@ -23,7 +23,7 @@ void setupMotor() {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE(); 
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
@@ -50,7 +50,7 @@ void setupLED() {
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
-void setMotorDuty(float duty) {
+void setMotorDuty(float duty) { // de -100 a 100
     if (duty <= 0.0) {
         HAL_GPIO_WritePin(MOTOR_PORT_A1, MOTOR_PIN_A1, GPIO_PIN_RESET);
     } else {
@@ -73,7 +73,9 @@ int main(void) {
     while (1) {
         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
+        
         HAL_Delay(1000);
+       
     }
 }
 
