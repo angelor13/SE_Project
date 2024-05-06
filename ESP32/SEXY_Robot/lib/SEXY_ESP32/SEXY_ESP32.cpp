@@ -5,6 +5,9 @@ bool SEXY_ESP32::isTagDetected=false;
 
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
 TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
+TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
+
+std::vector<vec3> SEXY_ESP32::mapPointCloud;
 
 
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
@@ -16,14 +19,25 @@ Adafruit_ADS1115 SEXY_ESP32::gasADC;
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
 
-float SEXY_ESP32::L;
-float SEXY_ESP32::r;
-float SEXY_ESP32::dotphiL=0;
-float SEXY_ESP32::dotphiR=0;
+float SEXY_ESP32::R=0.5;
+float SEXY_ESP32::L=0.12;
+float SEXY_ESP32::r=0.03;
+float SEXY_ESP32::dotphiL;
+float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
 float SEXY_ESP32::w=0;
 
 
+SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
+
+
+
+
+
+float SEXY_ESP32::distanceMotorL=0;
+float SEXY_ESP32::distanceMotorR=0;
+
+long SEXY_ESP32::previous_millis=0;
 
 // Implementation
 
@@ -94,7 +108,7 @@ gasADC.begin(ADDR_ADC);
  * @brief Initialize the RFID.
  */
 void SEXY_ESP32::setupRFID() {
-  SPI.begin(); 
+  //SPI.begin(); 
   RFID_device.PCD_Init();
 }
 
@@ -111,8 +125,9 @@ void SEXY_ESP32::begin() {
     setupSPI();
     xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle, 0);
     xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 1);
+    xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
+    //xTaskCreatePinnedToCore(taskUpdatePosition, "TASK_UpdatePosition", 2000, nullptr, 2, &taskUpdatePositionHandle, 0);
 }
-
 /**
   @brief Control left motor speed.
   @param duty desired duty cycle for the motor, value between [-511, 511]
@@ -293,20 +308,55 @@ void SEXY_ESP32::printI2C() {
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
+
+    RFID_device.PCD_AntennaOff();
+    long current_millis=millis();
     digitalWrite(VSPI_SS, LOW);
     SPI.transferBytes(NULL,RxBuffer,BUFFER_SIZE);
     digitalWrite(VSPI_SS, HIGH);
+    RFID_device.PCD_AntennaOn();
     dotphiL=RxBuffer[0];
     dotphiR=RxBuffer[1];
-    Serial.println("Hello Transmition");
-    delay(50);
+    Serial.println("Data Transmition");
+   
+    distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
+    distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+    previous_millis=current_millis;
+    delay(10);
   }
 }
+void SEXY_ESP32::taskGetPointCloud(void*){
+
+  uint32_t leftDistance=getLeftDistance();
+  uint32_t frontDistance=getFrontDistance();
+  uint32_t rightDistance=getRightDistance();
+
+
+
+  vec3 atual_pos=vec3(robot_pos.x,robot_pos.y,0);
+
+  vec3 dir_left = vec3(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance,0);
+  vec3 dir_front = vec3(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance, 0);
+  vec3 dir_right = vec3(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance,0);
+
+  dir_left+=atual_pos;
+  dir_front+=atual_pos;
+  dir_right+=atual_pos;
+
+  mapPointCloud.push_back(dir_left);
+  mapPointCloud.push_back(dir_front);
+  mapPointCloud.push_back(dir_right);
+  delay(10);
+}
+
 
 void SEXY_ESP32::transmitSPIcom(){
+  RFID_device.PCD_AntennaOff();
   digitalWrite(VSPI_SS, LOW);
   SPI.transferBytes(TxBuffer,NULL,BUFFER_SIZE);
   digitalWrite(VSPI_SS, HIGH);
+  RFID_device.PCD_AntennaOn();
+  Serial.println("Data Received");
 }
 
 void SEXY_ESP32:: taskReadRFID(void*){
@@ -346,7 +396,7 @@ float SEXY_ESP32::calculatedVx(const float dotphiR,const float dotphiL,const flo
   @brief Calculate W
  */
 float SEXY_ESP32::calculatedW(const float dotphiR,const float dotphiL,const float L,const float r){
-  return (dotphiR-dotphiL)*r/L;
+ return (dotphiR-dotphiL)*r/L;
 }
 
 /**
@@ -365,13 +415,29 @@ float SEXY_ESP32::getDotphiR(){
   @brief Get Vx
  */
 float SEXY_ESP32::getVx(){
-  return (float)calculatedVx(dotphiR,dotphiL,r);
+  vx=(float)calculatedVx(dotphiR,dotphiL,r);
+  return vx;
 }
 /**
   @brief Get W
  */
 float SEXY_ESP32::getW(){
-  return (float)calculatedW(dotphiR,dotphiL,L,r);
+  w=(float)calculatedW(dotphiR,dotphiL,L,r);
+  return w;
+}
+
+float SEXY_ESP32::getR(float Raio){
+  R=Raio;
+  return R;
+}
+
+
+float SEXY_ESP32::getDistanceL(){
+  return distanceMotorL;
+}
+
+float SEXY_ESP32::getDistanceR(){
+  return distanceMotorR;
 }
 
 
