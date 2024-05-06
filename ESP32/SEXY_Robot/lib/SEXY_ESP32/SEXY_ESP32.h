@@ -10,6 +10,9 @@
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
 #include <WiFi.h>
+#include <vector>
+#include <vec3.hpp>
+
 //#include <WiFiUdp.h>
 
 class SEXY_ESP32 {
@@ -18,7 +21,10 @@ private:                        // Index Map:
     static byte RxBuffer[4];    //  0 -> dotphiL        1-> dotphiR         2->             3->
     static byte TxBuffer[4];    //  0 -> MotorL_PWM     1-> MotorR_PWM      2->             3->
 
-    
+    static std::vector<vec3> mapPointCloud;
+
+    static float distanceMotorR,distanceMotorL;
+    static long previous_millis;
 
     // Pin constants
 
@@ -110,13 +116,16 @@ private:                        // Index Map:
 
     static TaskHandle_t taskReadRFIDHandle;
     static TaskHandle_t taskReceiveSPiComHandle;
-    
-
+    static TaskHandle_t taskGetPointCloudHandle;
+    static TaskHandle_t taskUpdatePositionHandle;
 
 
     // TaskFunctions_t
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
+    static void taskGetPointCloud(void*);
+    static void taskUpdatePosition(void*);
+
     
 
 
@@ -140,10 +149,21 @@ private:                        // Index Map:
 
 
 public:
-
+    // Robot Atributes
     static float L,r,dotphiL,dotphiR,vx,w,R;
     
     static constexpr float MAX_DOTPHI=40;
+
+    struct SEXY_POS
+    {
+        float x=0;
+        float y=0;
+        float phi=0;
+        float vetor[2]={1,0};
+    };
+
+    static SEXY_POS robot_pos;
+    
 
     // RFID constants
     static const byte TARGET_BLOCK= 60;
@@ -186,7 +206,8 @@ public:
     static float getR(float Raio);
 
     // Other functions
-
+    static float getDistanceR();
+    static float getDistanceL();
     
 };
 

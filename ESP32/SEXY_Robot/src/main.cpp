@@ -37,8 +37,10 @@ bot.begin();
 
 void loop() {
   //bot.getTagDetected();
-  // bot.moveMotors(500,500);
-  // delay(100);
+  for(int i=0;i<=500;i++){
+    bot.moveMotors(i,i);
+    delay(10);
+  }
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();
@@ -52,12 +54,12 @@ void loop() {
 // }
 
 
-curve90Circule(bot.getVx(),bot.getR(0.2));
-long start_millis=millis();
-while (millis()-start_millis<=1300)
-{
+// curve90Circule(bot.getVx(),bot.getR(0.2));
+// long start_millis=millis();
+// while (millis()-start_millis<=1300)
+// {
 
-}
+// }
 
 }
 
