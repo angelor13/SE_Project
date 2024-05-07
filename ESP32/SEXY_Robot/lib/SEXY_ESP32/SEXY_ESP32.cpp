@@ -10,6 +10,7 @@ TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
 std::vector<vec3> SEXY_ESP32::mapPointCloud;
 
 
+
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
 
 VL53L0X SEXY_ESP32::LidarFront;
@@ -26,7 +27,7 @@ float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
 float SEXY_ESP32::w=0;
-
+float SEXY_ESP32::PercentL=0,PercentR=0;
 
 SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
 
@@ -119,32 +120,30 @@ void SEXY_ESP32::begin() {
     //setupMotors();
     setupADC();
     setupSharps();
-    setupLidar();
+    // setupLidar();
     setupRFID();
     Serial.begin(115200);
     setupSPI();
     //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-    //xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
     //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
   @brief Control left motor speed.
-  @param duty desired duty cycle for the motor, value between [-511, 511]
+  @param duty desired velocity for the motor, value between [-511, 511]
  */
-void SEXY_ESP32::moveMotorLeft(int16_t duty) {
-    duty = constrain(duty , -DUTY_MOTOR_MAX, DUTY_MOTOR_MAX);
-    TxBuffer[0]=(byte)duty;
-    transmitSPIcom();
+void SEXY_ESP32::moveMotorLeft(int16_t perL) {
+    perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
+    transmitSPIcom(perL);
 }
 
 /**
   @brief Control right motor speed.
-  @param duty desired duty cycle for the motor, value between [-511, 511]
+  @param duty desired velocity for the motor, value between [-511, 511]
  */
-void SEXY_ESP32 :: moveMotorRight(int16_t duty) {
-    duty = constrain(duty, -DUTY_MOTOR_MAX, DUTY_MOTOR_MAX);
-    TxBuffer[1]=(byte)duty;
-    transmitSPIcom();
+void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
+    perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
+    transmitSPIcom(perR);
 }
 
 /**
@@ -152,9 +151,9 @@ void SEXY_ESP32 :: moveMotorRight(int16_t duty) {
   @param dutyMotorLeft desired duty cycle for left motor, value between [-511, 511]
   @param dutyMotorRight desired duty cycle for right motor, value between [-511, 511]
  */
-void SEXY_ESP32::moveMotors(int16_t dutyMotorLeft, int16_t dutyMotorRight) {
-    moveMotorLeft(dutyMotorLeft);
-    moveMotorRight(dutyMotorRight);
+void SEXY_ESP32::moveMotors(int16_t perL, int16_t perR) {
+    moveMotorLeft(perL);
+    moveMotorRight(perR);
 }
 
 /**
@@ -306,30 +305,12 @@ void SEXY_ESP32::printI2C() {
 }
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
-  while(1){
-    enable_send=false;
-    RFID_device.PCD_AntennaOff();
-    long current_millis=millis();
-    digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(NULL,RxBuffer,1);
-    digitalWrite(VSPI_SS, HIGH);
-    RFID_device.PCD_AntennaOn();
-    enable_send=true;
-    dotphiL=(float)RxBuffer[0];
-    dotphiR=(float)RxBuffer[1];
-    //Serial.println("Data Transmition");
-    Serial.println("dotphiL:   "+(String)RxBuffer[0]);
-    Serial.println("dotphiR:   "+(String)RxBuffer[1]);
-    distanceMotorL+=r*dotphiL*(current_millis-previous_millis);
-    distanceMotorR+=r*dotphiR*(current_millis-previous_millis);
-    previous_millis=current_millis;
-    // Atulialize robot_pos
-
-
-
-    delay(10);
-  }
+while(1){
+  uint32_t leftSpeed = receiveDataSPI(0xAB);
+  delay(50);
 }
+}
+
 void SEXY_ESP32::taskGetPointCloud(void*){
 
   uint32_t leftDistance=getLeftDistance();
@@ -356,19 +337,50 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 }
 
 
-void SEXY_ESP32::transmitSPIcom(){
-  // if(enable_send){
-  RFID_device.PCD_AntennaOff();
-  digitalWrite(VSPI_SS, LOW);
-  SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
-  digitalWrite(VSPI_SS, HIGH);
-  RFID_device.PCD_AntennaOn();
-  Serial.println("Data Transmited");
-  // }
-  // else{
-  //   Serial.println("Can not send!");
-  // }
+void SEXY_ESP32::transmitDataSPI(uint32_t value, uint8_t flag){
+#define unpack(x) {(x >> 0) & 0xFF, (x >> 8) & 0xFF, (x >> 16) & 0xFF, (x >> 24) & 0xFF}
+#define pack(x) (x[3] << 24) | (x[2] << 16) | (x[1] << 8) | (x[0] << 0)
+    digitalWrite(VSPI_SS, LOW);
 
+    SPI.transferBytes(&flag, NULL, 1);
+
+    uint8_t _value[] = unpack(value);
+
+    for (int i = 0; i < 4; i++) {
+        SPI.transferBytes(&_value[i], NULL, 1);
+        delay(10);
+    }
+
+    digitalWrite(VSPI_SS, HIGH);
+
+#undef unpack
+#undef pack
+}
+
+uint32_t SEXY_ESP32::receiveDataSPI(uint8_t flag){
+#define unpack(x) {(x >> 0) & 0xFF, (x >> 8) & 0xFF, (x >> 16) & 0xFF, (x >> 24) & 0xFF}
+#define pack(x) (x[3] << 24) | (x[2] << 16) | (x[1] << 8) | (x[0] << 0)
+    uint8_t _flag = 0;
+    uint8_t _value[4] = { 0 };
+
+    digitalWrite(VSPI_SS, LOW);
+
+    do {
+        SPI.transferBytes(NULL, &_flag, 1);
+    } while (_flag != flag);
+
+
+    for (int i = 0; i < 4; i++) {
+        SPI.transferBytes(NULL, &_value[i], 1);
+        delay(10);
+    }
+
+    digitalWrite(VSPI_SS, HIGH);
+
+    return pack(_value);
+
+#undef unpack
+#undef pack
 }
 
 void SEXY_ESP32::taskReadRFID(void*){

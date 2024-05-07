@@ -6,12 +6,12 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
   return (vx - vin_min) * (vout_max - vout_min) / (vin_max - vin_min) + vout_min;
 }
 
-float leftPWM,rightPWM;
+float leftW,rightW;
 
 void curve90Circule(float vx,float R){
   float w=vx/R;
-  leftPWM=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
-  rightPWM=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
+  leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
+  rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
 
   if(vx<0){
     // Bot.moveMotors(leftPWM,rightPWM);
@@ -21,8 +21,8 @@ void curve90Circule(float vx,float R){
     // }
     // rotate_90_Stacionary();
     // rotate_90_Stacionary();
-    float aux=-leftPWM;
-    leftPWM=-rightPWM;
+    float aux=-leftW;
+    leftPWM=-rightPW;
     rightPWM=aux;
     vx=-vx;
   }
@@ -37,6 +37,7 @@ bot.begin();
 byte rx[4];
 byte tx=10;
 void loop() {
+  delay(1);
   // if(bot.getTagDetected()){
   //   Serial.println("Tag detected");
   // }
@@ -61,12 +62,12 @@ void loop() {
  
   // Done varios SPI
 
-  //  for(int i=0;i<4;i++){
- 
-  digitalWrite(5, LOW);
-  SPI.transferBytes(NULL,rx,1);
-  digitalWrite(5, HIGH);
-  Serial.printf("%f\n",(float)rx[0]);
+  // for(int i=0;i<4;i++){
+
+  // digitalWrite(5, LOW);
+  // SPI.transferBytes(NULL,rx,1);
+  // digitalWrite(5, HIGH);
+  // Serial.printf("%f\n",(float)rx[0]);
   
     
   //  }
@@ -81,6 +82,8 @@ void loop() {
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();
 // uint32_t right_distance=bot.getRightDistance();
+
+// Real Code
 
 
 // bot.moveMotors(500,500);    // andar os pimeiros 50 cm

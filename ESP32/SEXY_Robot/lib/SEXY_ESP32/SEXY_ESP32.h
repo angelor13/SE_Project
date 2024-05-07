@@ -111,7 +111,7 @@ private:                        // Index Map:
 
     
     // Tansmit SPI COM
-    static void transmitSPIcom();
+    static void transmitSPIcom(int32_t value);
 
 
     // Tasks Handles_t
@@ -152,6 +152,9 @@ private:                        // Index Map:
 public:
     // Robot Atributes
     static float L,r,dotphiL,dotphiR,vx,w,R;
+
+    static constexpr float MAXPERCENT=100;
+    static float PercentL,PercentR;
     
     static constexpr float MAX_DOTPHI=40;
 
@@ -207,6 +210,8 @@ public:
     static float getW();
     static float getR(float Raio);
 
+    void transmitDataSPI(uint32_t value, uint8_t flag);
+    uint32_t receiveDataSPI(uint8_t flag);
     // Other functions
     static float getDistanceR();
     static float getDistanceL();
