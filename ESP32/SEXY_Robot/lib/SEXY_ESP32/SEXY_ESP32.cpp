@@ -123,8 +123,8 @@ void SEXY_ESP32::begin() {
     setupRFID();
     Serial.begin(115200);
     setupSPI();
-    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle,1);
-    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
+    //xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
     //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
@@ -311,7 +311,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
     RFID_device.PCD_AntennaOff();
     long current_millis=millis();
     digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
+    SPI.transferBytes(NULL,RxBuffer,1);
     digitalWrite(VSPI_SS, HIGH);
     RFID_device.PCD_AntennaOn();
     enable_send=true;
@@ -357,17 +357,17 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 
 
 void SEXY_ESP32::transmitSPIcom(){
-  if(enable_send){
+  // if(enable_send){
   RFID_device.PCD_AntennaOff();
   digitalWrite(VSPI_SS, LOW);
   SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
   digitalWrite(VSPI_SS, HIGH);
   RFID_device.PCD_AntennaOn();
   Serial.println("Data Transmited");
-  }
-  else{
-    Serial.println("Can not send!");
-  }
+  // }
+  // else{
+  //   Serial.println("Can not send!");
+  // }
 
 }
 

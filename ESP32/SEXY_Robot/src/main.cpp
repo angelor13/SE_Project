@@ -54,13 +54,29 @@ void loop() {
   //   for(int i=0;i<2;i++){
   //   Serial.println((String)rx[0] + (String)rx[1] );
   // }
-
-
-  // digitalWrite(5, LOW);
-  // SPI.transferBytes(NULL,rx, 1);
+  //   digitalWrite(5, LOW);
+  // SPI.transferBytes(NULL,rx,1);
   // digitalWrite(5, HIGH);
-  // Serial.printf("%u\n",(uint8_t)rx[0]);
 
+ 
+  // Done varios SPI
+
+  //  for(int i=0;i<4;i++){
+ 
+  digitalWrite(5, LOW);
+  SPI.transferBytes(NULL,rx,1);
+  digitalWrite(5, HIGH);
+  Serial.printf("%f\n",(float)rx[0]);
+  
+    
+  //  }
+  
+  // Done
+
+//  for(int i=0;i<4;i++){
+
+//   Serial.printf("%f\n",(float)rx[i]);
+//  }
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();
@@ -68,15 +84,17 @@ void loop() {
 
 
 // bot.moveMotors(500,500);    // andar os pimeiros 50 cm
-// long start_millis=millis();
-// while(millis()-start_millis<=1000){
+// long start_Ldistance=bot.getDistanceL();
+// long start_Rdistance=bot.getDistanceR();
+// while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
 
 // }
 
 
-// curve90Circule(bot.getVx(),bot.getR(0.2));
-// long start_millis=millis();
-// while (millis()-start_millis<=1300)
+// curve90Circule(bot.getVx(),bot.getR(0.5));
+// start_Ldistance=bot.getDistanceL();
+// start_Rdistance=bot.getDistanceR();
+// while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
 // {
 
 // }
