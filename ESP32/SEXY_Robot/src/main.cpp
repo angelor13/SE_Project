@@ -34,25 +34,33 @@ void setup(){
 bot.begin();  
 }
 
-
+byte rx[4];
+byte tx=10;
 void loop() {
   // if(bot.getTagDetected()){
-  //   Serial.println("Tag detected");;
+  //   Serial.println("Tag detected");
   // }
 
-    bot.moveMotors(500,500);
-    delay(10); 
+    // bot.moveMotors(123,123);
+    // delay(10); 
   
   // for(int i=0;i<2;i++){
   //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
 
   // }
   // digitalWrite(5, LOW);
-  // SPI.transferBytes(rx,NULL, sizeof(rx));
+  // SPI.transferBytes(&tx,NULL, sizeof(tx));
   // digitalWrite(5, HIGH);
   //   for(int i=0;i<2;i++){
   //   Serial.println((String)rx[0] + (String)rx[1] );
   // }
+
+
+  // digitalWrite(5, LOW);
+  // SPI.transferBytes(NULL,rx, 1);
+  // digitalWrite(5, HIGH);
+  // Serial.printf("%u\n",(uint8_t)rx[0]);
+
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();

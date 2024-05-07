@@ -36,6 +36,8 @@ float SEXY_ESP32::distanceMotorR=0;
 
 long SEXY_ESP32::previous_millis=0;
 
+
+bool SEXY_ESP32::enable_send=true;
 // Implementation
 
 
@@ -91,10 +93,11 @@ void SEXY_ESP32::setupSharps(){
  * @brief Initialize the SPI
  */
 void SEXY_ESP32::setupSPI(){
-  SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi);
+  SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi,VSPI_SS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
 }
+
 /**
  * @brief Initialize the ADC
  */
@@ -120,10 +123,9 @@ void SEXY_ESP32::begin() {
     setupRFID();
     Serial.begin(115200);
     setupSPI();
-    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle,1);
+    xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 1, &taskReadRFIDHandle,1);
     xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
     //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
-    //xTaskCreatePinnedToCore(taskUpdatePosition, "TASK_UpdatePosition", 2000, nullptr, 2, &taskUpdatePositionHandle, 0);
 }
 /**
   @brief Control left motor speed.
@@ -266,11 +268,12 @@ int SEXY_ESP32::writeBlock(int blockNumber, byte arrayAddress[]){
 /**
   @brief detect RFID Tags
  */
-bool SEXY_ESP32:: Tag_Detected(){
+bool SEXY_ESP32::Tag_Detected(){
     if ( ! RFID_device.PICC_IsNewCardPresent()) {
     return false;
   }
     if ( ! RFID_device.PICC_ReadCardSerial()){
+      //Serial.println("Funcao2");
     return false;
   }
     return true;
@@ -304,24 +307,24 @@ void SEXY_ESP32::printI2C() {
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
-
+    enable_send=false;
     RFID_device.PCD_AntennaOff();
     long current_millis=millis();
     digitalWrite(VSPI_SS, LOW);
     SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
     digitalWrite(VSPI_SS, HIGH);
     RFID_device.PCD_AntennaOn();
+    enable_send=true;
     dotphiL=(float)RxBuffer[0];
     dotphiR=(float)RxBuffer[1];
     //Serial.println("Data Transmition");
-    Serial.println((String)RxBuffer[0]);
-    Serial.println((String)RxBuffer[1]);
-    distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
-    distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+    Serial.println("dotphiL:   "+(String)RxBuffer[0]);
+    Serial.println("dotphiR:   "+(String)RxBuffer[1]);
+    distanceMotorL+=r*dotphiL*(current_millis-previous_millis);
+    distanceMotorR+=r*dotphiR*(current_millis-previous_millis);
     previous_millis=current_millis;
-
     // Atulialize robot_pos
-    
+
 
 
     delay(10);
@@ -354,15 +357,21 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 
 
 void SEXY_ESP32::transmitSPIcom(){
+  if(enable_send){
   RFID_device.PCD_AntennaOff();
   digitalWrite(VSPI_SS, LOW);
   SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
   digitalWrite(VSPI_SS, HIGH);
   RFID_device.PCD_AntennaOn();
   Serial.println("Data Transmited");
+  }
+  else{
+    Serial.println("Can not send!");
+  }
+
 }
 
-void SEXY_ESP32:: taskReadRFID(void*){
+void SEXY_ESP32::taskReadRFID(void*){
   while(1){
     isTagDetected=Tag_Detected();
     delay(25);
@@ -441,6 +450,11 @@ float SEXY_ESP32::getDistanceL(){
 
 float SEXY_ESP32::getDistanceR(){
   return distanceMotorR;
+}
+
+
+bool SEXY_ESP32::getEnableSend(){
+  return enable_send;
 }
 
 

@@ -26,6 +26,8 @@ private:                        // Index Map:
     static float distanceMotorR,distanceMotorL;
     static long previous_millis;
 
+    static bool enable_send;
+
     // Pin constants
 
 
@@ -40,7 +42,7 @@ private:                        // Index Map:
 
     // RFID pins
     static constexpr uint8_t RST_PIN = INT8_MAX;   
-    static constexpr uint8_t PIN_RFID_SDA=5;       // pin 4 in robot
+    static constexpr uint8_t PIN_RFID_SDA=4;       // pin 4 in robot
     static constexpr uint8_t PIN_RFID_SCK=18;
     static constexpr uint8_t PIN_RFID_MISO=19;
     static constexpr uint8_t PIN_RFID_MOSI=23;
@@ -92,7 +94,7 @@ private:                        // Index Map:
     // static constexpr uint16_t VSPI_SS=5;
 
     
-    static constexpr uint16_t BUFFER_SIZE=8*4;
+    static constexpr uint16_t BUFFER_SIZE=4;
 
 
     // WIFI constants
@@ -124,7 +126,6 @@ private:                        // Index Map:
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
     static void taskGetPointCloud(void*);
-    static void taskUpdatePosition(void*);
 
     
 
@@ -153,6 +154,7 @@ public:
     static float L,r,dotphiL,dotphiR,vx,w,R;
     
     static constexpr float MAX_DOTPHI=40;
+
 
     struct SEXY_POS
     {
@@ -208,6 +210,8 @@ public:
     // Other functions
     static float getDistanceR();
     static float getDistanceL();
+
+    static bool getEnableSend();
     
 };
 

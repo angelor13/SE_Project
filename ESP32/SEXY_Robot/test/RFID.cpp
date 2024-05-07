@@ -12,7 +12,9 @@ void setup() {
 
 void loop() {
         // Look for new cards if not found rerun the loop function
-bot.Tag_Detected();
+if(bot.Tag_Detected()){
+    Serial.println("Tag Detected");
+}
 delay(50);
 }
 
