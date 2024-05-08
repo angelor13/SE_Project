@@ -40,19 +40,17 @@ void loop() {
   //   Serial.println("Tag detected");;
   // }
 
-    bot.moveMotors(500,500);
-    delay(10); 
+    // bot.moveMotors(500,500);
+    // delay(10); 
   
   // for(int i=0;i<2;i++){
   //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
 
   // }
-  // digitalWrite(5, LOW);
-  // SPI.transferBytes(rx,NULL, sizeof(rx));
-  // digitalWrite(5, HIGH);
-  //   for(int i=0;i<2;i++){
-  //   Serial.println((String)rx[0] + (String)rx[1] );
-  // }
+
+  static uint8_t rx[4];
+  SPI.transferBytes(NULL, rx, sizeof(rx));
+  Serial.printf("%u, %u, %u, %u\n", rx[0], rx[1], rx[2], rx[3]);
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();

@@ -305,20 +305,20 @@ void SEXY_ESP32::printI2C() {
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
 
-    RFID_device.PCD_AntennaOff();
-    long current_millis=millis();
-    digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
-    digitalWrite(VSPI_SS, HIGH);
-    RFID_device.PCD_AntennaOn();
-    dotphiL=(float)RxBuffer[0];
-    dotphiR=(float)RxBuffer[1];
-    //Serial.println("Data Transmition");
-    Serial.println((String)RxBuffer[0]);
-    Serial.println((String)RxBuffer[1]);
-    distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
-    distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
-    previous_millis=current_millis;
+    // RFID_device.PCD_AntennaOff();
+    // long current_millis=millis();
+    // digitalWrite(VSPI_SS, LOW);
+    // SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
+    // digitalWrite(VSPI_SS, HIGH);
+    // RFID_device.PCD_AntennaOn();
+    // dotphiL=(float)RxBuffer[0];
+    // dotphiR=(float)RxBuffer[1];
+    // //Serial.println("Data Transmition");
+    // // Serial.println((String)RxBuffer[0]);
+    // // Serial.println((String)RxBuffer[1]);
+    // distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
+    // distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+    // previous_millis=current_millis;
 
     // Atulialize robot_pos
     
