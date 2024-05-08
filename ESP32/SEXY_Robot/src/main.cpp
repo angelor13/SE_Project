@@ -10,8 +10,8 @@ float leftW,rightW;
 
 void curve90Circule(float vx,float R){
   float w=vx/R;
-  leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
-  rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-511,511);
+  leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-100,100);
+  rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-100,100);
 
   if(vx<0){
     // Bot.moveMotors(leftPWM,rightPWM);
@@ -22,12 +22,12 @@ void curve90Circule(float vx,float R){
     // rotate_90_Stacionary();
     // rotate_90_Stacionary();
     float aux=-leftW;
-    leftPWM=-rightPW;
-    rightPWM=aux;
+    leftW=-rightW;
+    rightW=aux;
     vx=-vx;
   }
   
-bot.moveMotors(leftPWM,rightPWM);
+bot.moveMotors(leftW,rightW);
 }
 
 void setup(){
@@ -86,21 +86,21 @@ void loop() {
 // Real Code
 
 
-// bot.moveMotors(500,500);    // andar os pimeiros 50 cm
-// long start_Ldistance=bot.getDistanceL();
-// long start_Rdistance=bot.getDistanceR();
-// while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
+bot.moveMotors(500,500);    // andar os pimeiros 50 cm
+long start_Ldistance=bot.getDistanceL();
+long start_Rdistance=bot.getDistanceR();
+while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
 
-// }
+}
 
 
-// curve90Circule(bot.getVx(),bot.getR(0.5));
-// start_Ldistance=bot.getDistanceL();
-// start_Rdistance=bot.getDistanceR();
-// while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
-// {
+curve90Circule(bot.getVx(),bot.getR(0.5));
+start_Ldistance=bot.getDistanceL();
+start_Rdistance=bot.getDistanceR();
+while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
+{
 
-// }
+}
 
 }
 

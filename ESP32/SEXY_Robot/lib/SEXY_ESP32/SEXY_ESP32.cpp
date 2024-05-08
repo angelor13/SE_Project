@@ -134,7 +134,7 @@ void SEXY_ESP32::begin() {
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
     perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
-    transmitSPIcom(perL);
+    transmitSPIcom(perL*MAX_DOTPHI);
 }
 
 /**
@@ -143,7 +143,7 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
     perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
-    transmitSPIcom(perR);
+    transmitSPIcom(perR*MAX_DOTPHI);
 }
 
 /**
