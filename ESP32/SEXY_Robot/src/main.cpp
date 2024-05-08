@@ -89,42 +89,19 @@ void loop() {
   //   Serial.println("Tag detected");
   // }
 
-    // bot.moveMotors(123,123);
-    // delay(10); 
+    bot.moveMotors(500,500);
+    delay(10); 
   
   // for(int i=0;i<2;i++){
   //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
 
   // }
   // digitalWrite(5, LOW);
-  // SPI.transferBytes(&tx,NULL, sizeof(tx));
+  // SPI.transferBytes(rx,NULL, sizeof(rx));
   // digitalWrite(5, HIGH);
   //   for(int i=0;i<2;i++){
   //   Serial.println((String)rx[0] + (String)rx[1] );
   // }
-  //   digitalWrite(5, LOW);
-  // SPI.transferBytes(NULL,rx,1);
-  // digitalWrite(5, HIGH);
-
- 
-  // Done varios SPI
-
-  // for(int i=0;i<4;i++){
-
-  // digitalWrite(5, LOW);
-  // SPI.transferBytes(NULL,rx,1);
-  // digitalWrite(5, HIGH);
-  // Serial.printf("%f\n",(float)rx[0]);
-  
-    
-  //  }
-  
-  // Done
-
-//  for(int i=0;i<4;i++){
-
-//   Serial.printf("%f\n",(float)rx[i]);
-//  }
 
 // uint32_t left_distance=bot.getLeftDistance();
 // uint32_t front_distance=bot.getFrontDistance();
