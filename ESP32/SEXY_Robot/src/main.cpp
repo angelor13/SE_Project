@@ -14,13 +14,6 @@ void curve90Circule(float vx,float R){
   rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-100,100);
 
   if(vx<0){
-    // Bot.moveMotors(leftPWM,rightPWM);
-    // long start_millis=millis();
-    // while (millis()-start_millis<=300){
-
-    // }
-    // rotate_90_Stacionary();
-    // rotate_90_Stacionary();
     float aux=-leftW;
     leftW=-rightW;
     rightW=aux;
@@ -29,7 +22,61 @@ void curve90Circule(float vx,float R){
   
 bot.moveMotors(leftW,rightW);
 }
+// void navegacao(){
+//   if(left_distance>=400 && front_distance<=1000 && right_distance>=100){  //Deteta aberturas com lidars
 
+//   Bot.moveMotors(0,0);
+//   delay(200);
+//   curve90Circule(vx,0.25);  // faz a curva no sentido anti-horário
+//   long start=millis();
+
+//   while(left_distance>=align+limiar || right_distance<=align-limiar|| millis()-start<=900){ // Faz a curva enquanto as seguintes condições
+//   // Volta a ler distâncias
+//   left_distance=Bot.getLidarLeftDistance();
+//   front_distance=Bot.getLidarFrontDistance();
+//   right_distance=Bot.getLidarRightDistance();
+
+//     if(left_distance<=40){
+//     break;
+//   }
+//   }
+//   Bot.moveMotors(0,0);
+//   delay(100);
+//  }
+// //Serial.println("  Esquerda: "+(String)left_distance+" Frente:  "+(String)front_distance+"  Direita:  "+(String)right_distance);
+
+// // Virar á direita, sendo que esta função poderá ser substituida pelo rotate_90_Stationary() pu apena pela navegação natural
+
+
+// if(right_distance>=400 && front_distance<=1000 && right_distance>=100){
+//   int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,511,60);
+//   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,5,300);
+//   Bot.moveMotors(0,0);
+//   delay(200);
+//   curve90Circule(-vx,0.2);  // faz a curva no sentido anti-horário
+//   long start=millis();
+//   while(left_distance>=align+limiar || right_distance>=align-limiar||  millis()-start<=900){
+//     // Volta a ler distâncias
+//   left_distance=Bot.getLidarLeftDistance();
+//   front_distance=Bot.getLidarFrontDistance();
+//   right_distance=Bot.getLidarRightDistance();
+//   if(left_distance<=40){
+//     break;
+//   }
+//   }
+//     Bot.moveMotors(0,0);
+//   delay(100);
+//  }
+
+//  // Navegação natural seguindo a parede esquerda
+
+// if((left_distance>=align+limiar || left_distance<=align-limiar ) && front_distance>=65){
+  
+//   left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50,log(1300)+50,511,-20);
+//   right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50, log(1300)+50,-70,500);
+//   Bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
+// }
+//}
 void setup(){
 bot.begin();  
 }
