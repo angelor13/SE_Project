@@ -130,7 +130,7 @@ void SEXY_ESP32::begin() {
 }
 /**
   @brief Control left motor speed.
-  @param duty desired velocity for the motor, value between [-511, 511]
+  @param perL desired velocity for the motor, value between [-511, 511]
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
     perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
@@ -139,7 +139,7 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
 
 /**
   @brief Control right motor speed.
-  @param duty desired velocity for the motor, value between [-511, 511]
+  @param perR desired velocity for the motor, value between [-511, 511]
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
     perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
@@ -148,8 +148,8 @@ void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
 
 /**
   @brief Control both motors simultaneously.
-  @param dutyMotorLeft desired duty cycle for left motor, value between [-511, 511]
-  @param dutyMotorRight desired duty cycle for right motor, value between [-511, 511]
+  @param perL desired duty cycle for left motor, value between [-100 100]
+  @param perR desired duty cycle for right motor, value between [-100,100]
  */
 void SEXY_ESP32::moveMotors(int16_t perL, int16_t perR) {
     moveMotorLeft(perL);

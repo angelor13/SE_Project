@@ -89,8 +89,7 @@ void loop() {
   //   Serial.println("Tag detected");
   // }
 
-    bot.moveMotors(500,500);
-    delay(10); 
+
   
   // for(int i=0;i<2;i++){
   //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
@@ -110,21 +109,21 @@ void loop() {
 // Real Code
 
 
-bot.moveMotors(500,500);    // andar os pimeiros 50 cm
-long start_Ldistance=bot.getDistanceL();
-long start_Rdistance=bot.getDistanceR();
-while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
+// bot.moveMotors(500,500);    // andar os pimeiros 50 cm
+// long start_Ldistance=bot.getDistanceL();
+// long start_Rdistance=bot.getDistanceR();
+// while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
 
-}
+// }
 
 
-curve90Circule(bot.getVx(),bot.getR(0.5));
-start_Ldistance=bot.getDistanceL();
-start_Rdistance=bot.getDistanceR();
-while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
-{
+// curve90Circule(bot.getVx(),bot.getR(0.5));
+// start_Ldistance=bot.getDistanceL();
+// start_Rdistance=bot.getDistanceR();
+// while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
+// {
 
-}
+// }
 
 }
 
