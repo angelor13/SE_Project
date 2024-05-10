@@ -43,29 +43,29 @@ bool SEXY_ESP32::enable_send=true;
 
 
 void SEXY_ESP32::setupMotors() {
-    pinMode(PIN_MOTOR_L_1, OUTPUT);
-    pinMode(PIN_MOTOR_L_2, OUTPUT);
-    pinMode(PIN_MOTOR_R_1, OUTPUT);
-    pinMode(PIN_MOTOR_R_2, OUTPUT);
+	pinMode(PIN_MOTOR_L_1, OUTPUT);
+	pinMode(PIN_MOTOR_L_2, OUTPUT);
+	pinMode(PIN_MOTOR_R_1, OUTPUT);
+	pinMode(PIN_MOTOR_R_2, OUTPUT);
 
-    analogWriteResolution(PWM_RESOLUTION_BITS);
+	analogWriteResolution(PWM_RESOLUTION_BITS);
 }
 /**
  * @brief Initialize the Lidar front
  */
 void SEXY_ESP32::setupLidar() {
-    Wire.begin();
+	Wire.begin();
 
-    // LiDAR
-    pinMode(PIN_XSHUT_FRONT, OUTPUT);
-    digitalWrite(PIN_XSHUT_FRONT, LOW);
-    delay(200);
-    digitalWrite(PIN_XSHUT_FRONT, HIGH);
-    delay(200);
-    LidarFront.setAddress(ADDR_LIDAR_FRONT);
-    LidarFront.setTimeout(500);
-    LidarFront.init(true);
-    LidarFront.startContinuous(0);
+	// LiDAR
+	pinMode(PIN_XSHUT_FRONT, OUTPUT);
+	digitalWrite(PIN_XSHUT_FRONT, LOW);
+	delay(200);
+	digitalWrite(PIN_XSHUT_FRONT, HIGH);
+	delay(200);
+	LidarFront.setAddress(ADDR_LIDAR_FRONT);
+	LidarFront.setTimeout(500);
+	LidarFront.init(true);
+	LidarFront.startContinuous(0);
 }
 /**
  * @brief Initialize Wifi
@@ -76,8 +76,8 @@ void SEXY_ESP32::setupWifi(){
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
-    delay(1000);
+	Serial.print('.');
+	delay(1000);
   }
   Serial.println(WiFi.localIP());
 }
@@ -86,9 +86,9 @@ void SEXY_ESP32::setupWifi(){
  * @brief Initialize the Lidar front
  */
 void SEXY_ESP32::setupSharps(){
-    // Sharps 
-    pinMode(PIN_VP_LEFT,INPUT);
-    pinMode(PIN_VP_RIGHT,INPUT);
+	// Sharps
+	pinMode(PIN_VP_LEFT,INPUT);
+	pinMode(PIN_VP_RIGHT,INPUT);
 }
 /**
  * @brief Initialize the SPI
@@ -110,7 +110,7 @@ gasADC.begin(ADDR_ADC);
  * @brief Initialize the RFID.
  */
 void SEXY_ESP32::setupRFID() {
-  //SPI.begin(); 
+  //SPI.begin();
   RFID_device.PCD_Init();
 }
 
@@ -118,23 +118,23 @@ void SEXY_ESP32::setupRFID() {
  * @brief Initialize the hardware interface. Must be called to interact with robot.
  */
 void SEXY_ESP32::begin() {
-    //setupMotors();
-    setupADC();
-    setupSharps();
-    // setupLidar();
-    setupRFID();
-    setupSPI();
-    //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-    // xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
-    //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
+	//setupMotors();
+	setupADC();
+	setupSharps();
+	// setupLidar();
+	setupRFID();
+	setupSPI();
+	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
+	// xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
   @brief Control left motor speed.
   @param perL desired velocity for the motor, value between [-511, 511]
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
-    perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
-    transmitSPIcom(perL*MAX_DOTPHI);
+	perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
+	transmitSPIcom(perL*MAX_DOTPHI);
 }
 
 /**
@@ -142,8 +142,8 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
   @param perR desired velocity for the motor, value between [-511, 511]
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
-    perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
-    transmitSPIcom(perR*MAX_DOTPHI);
+	perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
+	transmitSPIcom(perR*MAX_DOTPHI);
 }
 
 /**
@@ -152,8 +152,8 @@ void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
   @param perR desired duty cycle for right motor, value between [-100,100]
  */
 void SEXY_ESP32::moveMotors(int16_t perL, int16_t perR) {
-    moveMotorLeft(perL);
-    moveMotorRight(perR);
+	moveMotorLeft(perL);
+	moveMotorRight(perR);
 }
 
 /**
@@ -173,11 +173,11 @@ uint16_t SEXY_ESP32::getLeftDistance(){
 }
 /**
  * @brief Get the front LiDAR distance value, in millimeters.
- * @return value between [0, 2600] 
+ * @return value between [0, 2600]
  */
 uint16_t SEXY_ESP32::getFrontDistance() {
-    uint16_t distance = LidarFront.readRangeContinuousMillimeters();
-    return constrain(distance, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
+	uint16_t distance = LidarFront.readRangeContinuousMillimeters();
+	return constrain(distance, DIST_LIDAR_MIN, DIST_LIDAR_MAX);
 }
 
 /**
@@ -199,38 +199,38 @@ uint16_t SEXY_ESP32::getADCvalue(){
 */
 
 bool SEXY_ESP32::readCard(byte target_block, byte read_buffer[], byte length){                     // Buffer size must be 18 bytes
-    if ( ! RFID_device.PICC_IsNewCardPresent()) { // Card present?
-        return false;
-    }
-    if ( ! RFID_device.PICC_ReadCardSerial()) {  // read UID
-   
-        return false;
-    }
+	if ( ! RFID_device.PICC_IsNewCardPresent()) { // Card present?
+		return false;
+	}
+	if ( ! RFID_device.PICC_ReadCardSerial()) {  // read UID
+
+		return false;
+	}
   static MFRC522::MIFARE_Key key_tag={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
-    MFRC522::StatusCode status;
+	MFRC522::StatusCode status;
 
-    // Authenticate using key A
-    Serial.println(F("Authenticating using key A..."));
-    status = (MFRC522::StatusCode) RFID_device.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A,target_block, &key_tag, &(RFID_device.uid));
-    if (status != MFRC522::STATUS_OK) {
-        Serial.print(F("PCD_Authenticate() failed: "));
-        Serial.println(RFID_device.GetStatusCodeName(status));
-        return false;
-    }
+	// Authenticate using key A
+	Serial.println(F("Authenticating using key A..."));
+	status = (MFRC522::StatusCode) RFID_device.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A,target_block, &key_tag, &(RFID_device.uid));
+	if (status != MFRC522::STATUS_OK) {
+		Serial.print(F("PCD_Authenticate() failed: "));
+		Serial.println(RFID_device.GetStatusCodeName(status));
+		return false;
+	}
 
-    //byte length = 18;
-    status = (MFRC522::StatusCode)RFID_device.MIFARE_Read(target_block, read_buffer, &length);
+	//byte length = 18;
+	status = (MFRC522::StatusCode)RFID_device.MIFARE_Read(target_block, read_buffer, &length);
 
-    if (status != MFRC522::STATUS_OK) {
-        Serial.print(F("Tag read Failed: "));
-        Serial.println(RFID_device.GetStatusCodeName(status));
-        return false;
-    }
-    // Halt PICC
-    RFID_device.PICC_HaltA();
-    // Stop encryption on PCD
-    RFID_device.PCD_StopCrypto1();
-    return true;
+	if (status != MFRC522::STATUS_OK) {
+		Serial.print(F("Tag read Failed: "));
+		Serial.println(RFID_device.GetStatusCodeName(status));
+		return false;
+	}
+	// Halt PICC
+	RFID_device.PICC_HaltA();
+	// Stop encryption on PCD
+	RFID_device.PCD_StopCrypto1();
+	return true;
 }
 /**
   @brief Write in RFID Tags
@@ -240,26 +240,26 @@ int SEXY_ESP32::writeBlock(int blockNumber, byte arrayAddress[]){
   int largestModulo4Number = blockNumber / 4 * 4;
   int trailerBlock = largestModulo4Number + 3; //determine trailer block for the sector
   if (blockNumber > 2 && (blockNumber + 1) % 4 == 0) {
-    Serial.print(blockNumber);
-    Serial.println(" is a trailer block: Error");
-    return 2;
+	Serial.print(blockNumber);
+	Serial.println(" is a trailer block: Error");
+	return 2;
   }
   //authentication
   MFRC522::StatusCode status;
   static MFRC522::MIFARE_Key key_tag={.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
   status =(MFRC522::StatusCode) RFID_device.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, trailerBlock, &key_tag, &(RFID_device.uid));
   if (status != MFRC522::STATUS_OK) {
-    Serial.print("Authentication failed: ");
-    Serial.println(RFID_device.GetStatusCodeName(status));
-    return 3;//return "3" as error message
+	Serial.print("Authentication failed: ");
+	Serial.println(RFID_device.GetStatusCodeName(status));
+	return 3;//return "3" as error message
   }
   //writing data to the block
   status = RFID_device.MIFARE_Write(blockNumber, arrayAddress, 16);
   //status = mfrc522.MIFARE_Write(9, value1Block, 16);
   if (status != MFRC522::STATUS_OK) {
-    Serial.print("Data write failed: ");
-    Serial.println(RFID_device.GetStatusCodeName(status));
-    return 4;//return "4" as error message
+	Serial.print("Data write failed: ");
+	Serial.println(RFID_device.GetStatusCodeName(status));
+	return 4;//return "4" as error message
   }
   return -1;
 }
@@ -268,65 +268,65 @@ int SEXY_ESP32::writeBlock(int blockNumber, byte arrayAddress[]){
   @brief detect RFID Tags
  */
 bool SEXY_ESP32::Tag_Detected(){
-    if ( ! RFID_device.PICC_IsNewCardPresent()) {
-    return false;
+	if ( ! RFID_device.PICC_IsNewCardPresent()) {
+	return false;
   }
-    if ( ! RFID_device.PICC_ReadCardSerial()){
-      //Serial.println("Funcao2");
-    return false;
+	if ( ! RFID_device.PICC_ReadCardSerial()){
+	  //Serial.println("Funcao2");
+	return false;
   }
-    return true;
+	return true;
 }
 /**
   @brief Print all detected I2C devices.
  */
 void SEXY_ESP32::printI2C() {
-    Serial.println("I2C scanner. Scanning ...");
-    byte count = 0;
+	Serial.println("I2C scanner. Scanning ...");
+	byte count = 0;
 
-    for (byte i = 1; i < 120; i++) {
-        Wire.beginTransmission(i);
+	for (byte i = 1; i < 120; i++) {
+		Wire.beginTransmission(i);
 
-        if (Wire.endTransmission() == 0) {
-            Serial.print("Found address: ");
-            Serial.print(i, DEC);
-            Serial.print(" (0x");
-            Serial.print(i, HEX);
-            Serial.println(")");
-            count++;
-            delay(1); // maybe unneeded?
-        }
-    }
+		if (Wire.endTransmission() == 0) {
+			Serial.print("Found address: ");
+			Serial.print(i, DEC);
+			Serial.print(" (0x");
+			Serial.print(i, HEX);
+			Serial.println(")");
+			count++;
+			delay(1); // maybe unneeded?
+		}
+	}
 
-    Serial.println("Done.");
-    Serial.print("Found ");
-    Serial.print(count, DEC);
-    Serial.println(" device(s).");
+	Serial.println("Done.");
+	Serial.print("Found ");
+	Serial.print(count, DEC);
+	Serial.println(" device(s).");
 }
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
 
-    RFID_device.PCD_AntennaOff();
-    long current_millis=millis();
-    digitalWrite(VSPI_SS, LOW);
-    SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
-    digitalWrite(VSPI_SS, HIGH);
-    RFID_device.PCD_AntennaOn();
-    dotphiL=(float)RxBuffer[0];
-    dotphiR=(float)RxBuffer[1];
-    //Serial.println("Data Transmition");
-    Serial.println((String)RxBuffer[0]);
-    Serial.println((String)RxBuffer[1]);
-    distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
-    distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
-    previous_millis=current_millis;
+	RFID_device.PCD_AntennaOff();
+	long current_millis=millis();
+	digitalWrite(VSPI_SS, LOW);
+	SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
+	digitalWrite(VSPI_SS, HIGH);
+	RFID_device.PCD_AntennaOn();
+	dotphiL=(float)RxBuffer[0];
+	dotphiR=(float)RxBuffer[1];
+	//Serial.println("Data Transmition");
+	Serial.println((String)RxBuffer[0]);
+	Serial.println((String)RxBuffer[1]);
+	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
+	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+	previous_millis=current_millis;
 
-    // Atulialize robot_pos
-    
+	// Atulialize robot_pos
 
 
-    delay(10);
+
+	delay(10);
   }
 }
 
@@ -338,10 +338,10 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 
 
 
-  vec2 atual_pos=vec2(robot_pos.x,robot_pos.y,0);
-  vec2 dir_left = vec2(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance,0);
-  vec2 dir_front = vec2(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance, 0);
-  vec2 dir_right = vec2(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance,0);
+  vec2 atual_pos= vec2(robot_pos.x,robot_pos.y);
+  vec2 dir_left = vec2(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance);
+  vec2 dir_front = vec2(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance);
+  vec2 dir_right = vec2(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance);
 
   dir_left+=atual_pos;
   dir_front+=atual_pos;
@@ -355,60 +355,12 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   delay(10);
 }
 
-
-void SEXY_ESP32::transmitDataSPI(uint32_t value, uint8_t flag){
-#define unpack(x) {(x >> 0) & 0xFF, (x >> 8) & 0xFF, (x >> 16) & 0xFF, (x >> 24) & 0xFF}
-#define pack(x) (x[3] << 24) | (x[2] << 16) | (x[1] << 8) | (x[0] << 0)
-    digitalWrite(VSPI_SS, LOW);
-
-    SPI.transferBytes(&flag, NULL, 1);
-
-    uint8_t _value[] = unpack(value);
-
-    for (int i = 0; i < 4; i++) {
-        SPI.transferBytes(&_value[i], NULL, 1);
-        delay(10);
-    }
-
-    digitalWrite(VSPI_SS, HIGH);
-
-#undef unpack
-#undef pack
-}
-
-uint32_t SEXY_ESP32::receiveDataSPI(uint8_t flag){
-#define unpack(x) {(x >> 0) & 0xFF, (x >> 8) & 0xFF, (x >> 16) & 0xFF, (x >> 24) & 0xFF}
-#define pack(x) (x[3] << 24) | (x[2] << 16) | (x[1] << 8) | (x[0] << 0)
-    uint8_t _flag = 0;
-    uint8_t _value[4] = { 0 };
-
-    digitalWrite(VSPI_SS, LOW);
-
-    do {
-        SPI.transferBytes(NULL, &_flag, 1);
-    } while (_flag != flag);
-
-
-    for (int i = 0; i < 4; i++) {
-        SPI.transferBytes(NULL, &_value[i], 1);
-        delay(10);
-    }
-
-    digitalWrite(VSPI_SS, HIGH);
-
-    return pack(_value);
-
-#undef unpack
-#undef pack
-}
-
 void SEXY_ESP32::taskReadRFID(void*){
   while(1){
-    isTagDetected=Tag_Detected();
-    delay(25);
+	isTagDetected=Tag_Detected();
+	delay(25);
   }
 }
-
 
 bool SEXY_ESP32 ::getTagDetected(){
   return isTagDetected;
@@ -487,11 +439,3 @@ float SEXY_ESP32::getDistanceR(){
 bool SEXY_ESP32::getEnableSend(){
   return enable_send;
 }
-
-
-
-
-
-
-
-

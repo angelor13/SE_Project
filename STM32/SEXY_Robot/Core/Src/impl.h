@@ -9,8 +9,39 @@
 #include "stm32f4xx_hal_spi.h"
 
 extern SPI_HandleTypeDef hspi1;
+extern TIM_HandleTypeDef htim2;
 
-// Stores the last measured deltas between each encoder's detected RISING edges
+int32_t getMotorDeltaLeft() {
+	static int32_t last_pulse = 0;
+	static uint32_t last_tick = 0;
+
+	int32_t current_pulse = htim2.Instance->CNT;
+	uint32_t current_tick = HAL_GetTick();
+
+	int32_t delta_pulse = current_pulse - last_pulse;
+	uint32_t delta_tick = current_tick - last_tick;
+
+	last_tick = current_tick;
+	last_pulse = current_pulse;
+
+	return delta_pulse / delta_tick;
+}
+
+int32_t getMotorDeltaRight() {
+	static int32_t last_pulse = 0;
+	static uint32_t last_tick = 0;
+
+	int32_t current_pulse = htim2.Instance->CNT;
+	uint32_t current_tick = HAL_GetTick();
+
+	int32_t delta_pulse = current_pulse - last_pulse;
+	uint32_t delta_tick = current_tick - last_tick;
+
+	last_tick = current_tick;
+	last_pulse = current_pulse;
+
+	return delta_pulse / delta_tick;
+}
 
 int xprintf(const char* fmt, ...) {
     uint8_t rc = USBD_OK;
@@ -31,57 +62,5 @@ int xprintf(const char* fmt, ...) {
 
     return len;
 }
-
-//
-//int32_t getEncoderValueLeft() {
-//	static uint32_t encoder_tick = 0;
-//	static uint32_t encoder_last_state_primary = 0;
-//	static uint32_t encoder_last_state_secondary = 0;
-//
-//	uint32_t encoder_state_primary = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
-//	uint32_t encoder_state_secondary = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-//
-//	uint32_t current_tick = getTick();
-//	int32_t delta_tick = current_tick - encoder_tick;
-//	encoder_tick = current_tick;
-//
-//	return delta_tick;
-//}
-//
-//int32_t getEncoderValueRight() {
-//	return 0;
-//}
-//
-//void update() {
-//	int32_t left = getEncoderValueLeft();
-//	int32_t right = getEncoderValueRight();
-//
-//}
-//
-//void updateEncoderTicks() {
-//	static uint32_t encoder_tick = 0;
-//	static uint32_t encoder_last_state_primary = 0;
-//	static uint32_t encoder_last_state_secondary = 0;
-//
-//	uint32_t encoder_state_primary = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
-//	uint32_t encoder_state_secondary = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-//
-//	char text[32] = { 0 };
-//
-//	if (encoder_state_primary > encoder_last_state_primary) {
-//		sprintf(text, "Tick 1\n");
-//		_write(0, text, sizeof(text));
-//	}
-//
-//	if (encoder_state_secondary > encoder_last_state_secondary) {
-//		uint32_t current_tick = getTick();
-//		sprintf(text, "Tick 2 & DELTA = %u\n", current_tick - encoder_tick);
-//		_write(0, text, sizeof(text));
-//		encoder_tick = current_tick;
-//	}
-//
-//	encoder_last_state_primary = encoder_state_primary;
-//	encoder_last_state_secondary = encoder_state_secondary;
-//}
 
 #endif

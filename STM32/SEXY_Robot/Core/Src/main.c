@@ -110,23 +110,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  uint8_t data[64];
-//
-//	  do {
-//		  HAL_SPI_Receive(&hspi1, data, 2, 100);
-//	  } while (data[0] != 0xAB && data[1] != 0xCD);
-//
-//	  HAL_SPI_Receive(&hspi1, data, 15, 100);
-//
-//	  xprintf("RX: %.15s\n", data);
+	  uint8_t rxdata[8];
 
-	  data[0] = 0xAB;
-	  data[1] = 0xCD;
-	  HAL_SPI_Transmit(&hspi1, data, 2, 100);
+	  HAL_SPI_Receive(&hspi1, rxdata, 2, 100);
 
-	  HAL_SPI_Transmit(&hspi1, "Hello, world!", 14, 100);
-
-	  HAL_Delay(100);
+	  if (rxdata[0] == 0xAB && rxdata[1] == 0xCD) {
+		  int32_t txdata[2] = { getMotorDeltaLeft(), getMotorDeltaRight() };
+		  HAL_SPI_Transmit(&hspi1, (void*)txdata, sizeof(txdata), 100);
+	  }
   }
   /* USER CODE END 3 */
 }
