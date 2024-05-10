@@ -11,7 +11,7 @@
 #include <Adafruit_ADS1X15.h>
 #include <WiFi.h>
 #include <vector>
-#include <vec3.hpp>
+#include <vec2.hpp>
 
 //#include <WiFiUdp.h>
 
@@ -21,7 +21,7 @@ private:                        // Index Map:
     static byte RxBuffer[4];    //  0 -> dotphiL        1-> dotphiR         2->             3->
     static byte TxBuffer[4];    //  0 -> MotorL_PWM     1-> MotorR_PWM      2->             3->
 
-    static std::vector<vec3> mapPointCloud;
+    static std::vector<vec2> mapPointCloud;
 
     static float distanceMotorR,distanceMotorL;
     static long previous_millis;

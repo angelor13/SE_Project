@@ -7,7 +7,7 @@ TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
 TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
 TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
 
-std::vector<vec3> SEXY_ESP32::mapPointCloud;
+std::vector<vec2> SEXY_ESP32::mapPointCloud;
 
 
 
@@ -338,10 +338,10 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 
 
 
-  vec3 atual_pos=vec3(robot_pos.x,robot_pos.y,0);
-  vec3 dir_left = vec3(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance,0);
-  vec3 dir_front = vec3(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance, 0);
-  vec3 dir_right = vec3(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance,0);
+  vec2 atual_pos=vec2(robot_pos.x,robot_pos.y,0);
+  vec2 dir_left = vec2(cos(PI/4+robot_pos.phi)*leftDistance,sin(PI/4+robot_pos.phi)*leftDistance,0);
+  vec2 dir_front = vec2(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance, 0);
+  vec2 dir_right = vec2(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance,0);
 
   dir_left+=atual_pos;
   dir_front+=atual_pos;

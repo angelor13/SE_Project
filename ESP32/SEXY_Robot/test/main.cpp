@@ -83,18 +83,23 @@ void setup() {
 }
 
 void loop() {
-    uint8_t data[64] = "Hello, world!";
+    uint8_t rxdata[64] = "Hello, world!";
+    uint8_t txdata[64] = { 0 };
 
     digitalWrite(5, 0);
 
-    // do {
-    //     data[0] = SPI.transfer(0x00);
-    //     data[1] = SPI.transfer(0x00);
-    // } while (data[0] != 0xAB && data[1] != 0xCD);
-
     SPI.transfer(0xAB);
     SPI.transfer(0xCD);
-    SPI.transfer(data, sizeof(data));
+    SPI.transfer(rxdata, sizeof(rxdata));
+
+    do {
+        rxdata[0] = SPI.transfer(0x00);
+        rxdata[1] = SPI.transfer(0x00);
+    } while (rxdata[0] != 0xAB && rxdata[1] != 0xCD);
+
+    SPI.transfer(txdata, 15);
+
+    Serial.printf("RX: %.15s\n", txdata);
 
     digitalWrite(5, 1);
 
