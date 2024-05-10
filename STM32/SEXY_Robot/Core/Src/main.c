@@ -110,7 +110,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  transmitDataSPI(1234, 0xAB);
+	  uint8_t data[64];
+	  do {
+		  HAL_SPI_Receive(&hspi1, data, 2, 100);
+	  } while (data[0] != 0xAB && data[1] != 0xCD);
+
+	  HAL_SPI_Receive(&hspi1, data, 15, 100);
+
+	  xprintf("RX: %.15s\n", data);
+
 	  HAL_Delay(100);
   }
   /* USER CODE END 3 */

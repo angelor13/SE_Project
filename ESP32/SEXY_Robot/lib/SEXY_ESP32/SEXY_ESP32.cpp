@@ -97,6 +97,7 @@ void SEXY_ESP32::setupSPI(){
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi,VSPI_SS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
+  SPI.setFrequency(1000);
 }
 
 /**
@@ -122,10 +123,9 @@ void SEXY_ESP32::begin() {
     setupSharps();
     // setupLidar();
     setupRFID();
-    Serial.begin(115200);
     setupSPI();
     //xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-    xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+    // xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
     //xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
