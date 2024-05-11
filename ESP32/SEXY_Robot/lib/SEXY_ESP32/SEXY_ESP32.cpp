@@ -125,7 +125,7 @@ void SEXY_ESP32::begin() {
 	setupRFID();
 	setupSPI();
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-	// xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+	//xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
@@ -134,7 +134,8 @@ void SEXY_ESP32::begin() {
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
 	perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
-	transmitSPIcom(perL*MAX_DOTPHI);
+	TxBuffer[0]=perL*MAX_DOTPHI;
+	transmitSPIcom();
 }
 
 /**
@@ -143,7 +144,8 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
 	perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
-	transmitSPIcom(perR*MAX_DOTPHI);
+	TxBuffer[1]=perR*MAX_DOTPHI;
+	transmitSPIcom();
 }
 
 /**
@@ -330,6 +332,17 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
   }
 }
 
+
+void SEXY_ESP32::transmitSPIcom(){
+	//RFID_device.PCD_AntennaOff();
+	digitalWrite(VSPI_SS, LOW);
+	SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
+	digitalWrite(VSPI_SS, HIGH);
+	//RFID_device.PCD_AntennaOn();
+
+}
+
+
 void SEXY_ESP32::taskGetPointCloud(void*){
 
   uint32_t leftDistance=getLeftDistance();
@@ -343,6 +356,7 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   vec2 dir_front = vec2(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance);
   vec2 dir_right = vec2(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance);
 
+  // Dont need robot phi 
   dir_left+=atual_pos;
   dir_front+=atual_pos;
   dir_right+=atual_pos;
@@ -350,7 +364,6 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   mapPointCloud.push_back(dir_left);
   mapPointCloud.push_back(dir_front);
   mapPointCloud.push_back(dir_right);
-
 
   delay(10);
 }
