@@ -1,6 +1,7 @@
 #include <SEXY_ESP32.h>
 #include "vec2.hpp"
 
+#define limiar 2
 
 SEXY_ESP32 bot;
           
@@ -11,7 +12,7 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
 
 float leftW,rightW;
 
-void curve90Circule(float vx,float R){
+void curve90Circule(float vx,float R, float phi){
   float w=vx/R;
   leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
   rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
@@ -24,6 +25,17 @@ void curve90Circule(float vx,float R){
   }
   
 bot.moveMotors(leftW,rightW);
+long start_Ldistance=bot.getDistanceL();
+long start_Rdistance=bot.getDistanceR();
+uint32_t align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
+ while (start_Ldistance>=align+limiar || start_Rdistance<=align-limiar|| (bot.getDistanceL()-start_Ldistance<=phi*((R*100)-(bot.L/2))/(2*PI) && bot.getDistanceR()-start_Rdistance<=phi*((R*100)+(bot.L/2)/(2*PI))))
+ {
+
+  start_Ldistance=bot.getDistanceL();
+  start_Rdistance=bot.getDistanceR();
+  align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
+
+ }
 }
 // void navegacao(){
 //   if(left_distance>=400 && front_distance<=1000 && right_distance>=100){  //Deteta aberturas com lidars
@@ -104,8 +116,9 @@ void loop() {
   // if(bot.getTagDetected()){
   //   Serial.println("Tag detected");
   // }
-bot.setMotorVelocity(5,5);
-
+// bot.setMotorVelocity(5,5);
+bot.moveMotors(100,100);
+delay(40);
   
   // for(int i=0;i<2;i++){
   //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );

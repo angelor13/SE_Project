@@ -111,7 +111,7 @@ private:                        // Index Map:
 
     
     // Tansmit SPI COM
-    static void transmitSPIcom(void);
+   // static void transmitSPIcom(void);
 
 
     // Tasks Handles_t

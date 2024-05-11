@@ -338,13 +338,13 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 	float dptR = (righ_omega * pulse_n_per_rot) /  (2*PI);
 
     int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
-	Serial.println(dptL);
+	//Serial.println(dptL);
 
-    digitalWrite(5, 0);
+    digitalWrite(VSPI_SS, 0);
     SPI.transfer(0xDE);
     SPI.transfer(0xAD);
     SPI.transfer(txdata, sizeof(txdata));
-    digitalWrite(5, 1);
+    digitalWrite(VSPI_SS, 1);
 }
 
 
@@ -373,19 +373,24 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	// Atulialize robot_pos
 
+
+
+
+
+
 	delay(500);
   }
 }
 
 
-void SEXY_ESP32::transmitSPIcom(){
-	//RFID_device.PCD_AntennaOff();
-	digitalWrite(VSPI_SS, LOW);
-	SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
-	digitalWrite(VSPI_SS, HIGH);
-	//RFID_device.PCD_AntennaOn();
+// void SEXY_ESP32::transmitSPIcom(){
+// 	//RFID_device.PCD_AntennaOff();
+// 	digitalWrite(VSPI_SS, LOW);
+// 	SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
+// 	digitalWrite(VSPI_SS, HIGH);
+// 	//RFID_device.PCD_AntennaOn();
 
-}
+// }
 
 
 void SEXY_ESP32::taskGetPointCloud(void*){
