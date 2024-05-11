@@ -134,8 +134,8 @@ void SEXY_ESP32::begin() {
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
 	perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
-	TxBuffer[0]=perL*MAX_DOTPHI;
-	transmitSPIcom();
+	setMotorVelocity(perL*MAX_Vx,0);
+
 }
 
 /**
@@ -144,8 +144,7 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
 	perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
-	TxBuffer[1]=perR*MAX_DOTPHI;
-	transmitSPIcom();
+	setMotorVelocity(0,perR*MAX_Vx);
 }
 
 /**
@@ -154,16 +153,14 @@ void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
   @param perR desired duty cycle for right motor, value between [-100,100]
  */
 void SEXY_ESP32::moveMotors(int16_t perL, int16_t perR) {
-	moveMotorLeft(perL);
-	moveMotorRight(perR);
+	setMotorVelocity(perL*MAX_Vx,perR*MAX_Vx);
 }
 
 /**
   @brief Stop Motors
  */
 void SEXY_ESP32::stopMotors(){
-  moveMotorLeft(0);
-  moveMotorRight(0);
+	moveMotors(0,0);
 }
 /**
  * @brief Get the left distance value, in millimeters.
@@ -306,29 +303,77 @@ void SEXY_ESP32::printI2C() {
 	Serial.println(" device(s).");
 }
 
+/// @brief Get motor velocities measured from encoders in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction.
+/// @return vec2(LEFT_VELOCITY, RIGHT_VELOCITY)
+vec2 SEXY_ESP32::getMotorVelocity() {
+    int32_t rxdata[2];
+	float raio=r*100;
+    const int pulse_n_per_rot=1470;
+
+    digitalWrite(VSPI_SS, 0);
+    SPI.transfer(0xAB);
+    SPI.transfer(0xCD);
+    SPI.transfer(rxdata, sizeof(rxdata));
+    digitalWrite(VSPI_SS, 1);
+
+    float left_velocity = (rxdata[0] / 1.0f);
+    float right_velocity = (rxdata[1] / 1.0f);
+
+	
+
+    float wL = (left_velocity * 2 * PI ) / (pulse_n_per_rot);
+	float wR = (right_velocity * 2* PI ) / (pulse_n_per_rot);
+    
+    return vec2(wL, wR);
+}
+
+/// @brief Set motor velocities in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction. [TO BE IMPLEMENTED ON STM32]
+void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
+	float raio=r*100;
+    const int pulse_n_per_rot=1470;
+    float left_omega = left_velocity / raio;
+	float righ_omega = right_velocity / raio;
+
+    float dptL = (left_omega * pulse_n_per_rot) / (2*PI);
+	float dptR = (righ_omega * pulse_n_per_rot) /  (2*PI);
+
+    int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
+	Serial.println(dptL);
+
+    digitalWrite(5, 0);
+    SPI.transfer(0xDE);
+    SPI.transfer(0xAD);
+    SPI.transfer(txdata, sizeof(txdata));
+    digitalWrite(5, 1);
+}
+
+
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
-
-	RFID_device.PCD_AntennaOff();
-	long current_millis=millis();
-	digitalWrite(VSPI_SS, LOW);
-	SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
-	digitalWrite(VSPI_SS, HIGH);
-	RFID_device.PCD_AntennaOn();
-	dotphiL=(float)RxBuffer[0];
-	dotphiR=(float)RxBuffer[1];
+	vec2 buffer;
 	//Serial.println("Data Transmition");
-	Serial.println((String)RxBuffer[0]);
-	Serial.println((String)RxBuffer[1]);
+	//RFID_device.PCD_AntennaOff();
+	long current_millis=millis();
+
+	buffer=getMotorVelocity();
+
+	//RFID_device.PCD_AntennaOn();
+
+	dotphiL=(float)buffer.x;	
+	dotphiR=(float)buffer.y;
+
+	//Serial.println("Data Transmition");
+
+	Serial.println("dotphiL:  "+(String)dotphiL);
+	Serial.println("dotphiR:  "+(String)dotphiR);
+
 	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
 	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
 	previous_millis=current_millis;
 
 	// Atulialize robot_pos
 
-
-
-	delay(10);
+	delay(500);
   }
 }
 

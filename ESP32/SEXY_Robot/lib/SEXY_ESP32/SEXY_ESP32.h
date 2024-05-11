@@ -156,7 +156,7 @@ public:
     static constexpr float MAXPERCENT=100;
     static float PercentL,PercentR;
     
-    static constexpr float MAX_DOTPHI=40;
+    static constexpr float MAX_Vx=40;
 
 
     struct SEXY_POS
@@ -209,6 +209,10 @@ public:
     static float getVx();
     static float getW();
     static float getR(float Raio);
+
+
+    static vec2 getMotorVelocity();
+    static  void setMotorVelocity(float left_velocity, float right_velocity);
 
     void transmitDataSPI(uint32_t value, uint8_t flag);
     uint32_t receiveDataSPI(uint8_t flag);

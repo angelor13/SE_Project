@@ -13,8 +13,8 @@ float leftW,rightW;
 
 void curve90Circule(float vx,float R){
   float w=vx/R;
-  leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-100,100);
-  rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_DOTPHI,bot.MAX_DOTPHI,-100,100);
+  leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
+  rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
 
   if(vx<0){
     float aux=-leftW;
@@ -81,7 +81,9 @@ bot.moveMotors(leftW,rightW);
 // }
 //}
 void setup(){
-bot.begin();  
+  
+  Serial.begin(115200);
+  bot.begin();  
 }
 
 byte rx[4];
@@ -91,33 +93,9 @@ byte tx=10;
 
 
 
-/// @brief Get motor velocities measured from encoders in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction.
-/// @return vec2(LEFT_VELOCITY, RIGHT_VELOCITY)
-vec2 getMotorDeltas() {
-    int32_t rxdata[2];
 
-    digitalWrite(5, 0);
-    SPI.transfer(0xAB);
-    SPI.transfer(0xCD);
-    SPI.transfer(rxdata, sizeof(rxdata));
-    digitalWrite(5, 1);
 
-    float left_velocity = (rxdata[0] / 1.0f);
-    float right_velocity = (rxdata[1] / 1.0f);
-    
-    return vec2(left_velocity, right_velocity);
-}
 
-/// @brief Set motor velocities in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction. [TO BE IMPLEMENTED ON STM32]
-void setMotorDeltas(float left_velocity, float right_velocity) {
-    int32_t txdata[2] = { (int32_t) left_velocity, (int32_t) right_velocity };
-
-    digitalWrite(5, 0);
-    SPI.transfer(0xDE);
-    SPI.transfer(0xAD);
-    SPI.transfer(txdata, sizeof(txdata));
-    digitalWrite(5, 1);
-}
 
 
 
@@ -126,7 +104,7 @@ void loop() {
   // if(bot.getTagDetected()){
   //   Serial.println("Tag detected");
   // }
-
+bot.setMotorVelocity(5,5);
 
   
   // for(int i=0;i<2;i++){
@@ -162,11 +140,12 @@ void loop() {
 // {
 
 // }
-   vec2 deltas = getMotorDeltas();
 
-    Serial.printf("Left: %.5f, Right: %.5f\n", deltas.x, deltas.y);
+//    vec2 deltas = bot.getMotorDeltas();
 
-    delay(100);
+//     Serial.printf("Left: %.5f, Right: %.5f\n", deltas.x, deltas.y);
+
+//     delay(100);
+
 
 }
-
