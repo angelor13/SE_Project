@@ -384,22 +384,22 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 	if(!getCurvingState()){
 		if(currentDirection==FRONT){
 			//robot_pos.x+=align;
-			robot_pos.y+=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			robot_pos.phi=PI/2;
 		}
 		else if (currentDirection==LEFT){
-			robot_pos.x-=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			//robot_pos.y-=align;
 			robot_pos.phi=PI;
 		}
 		else if (currentDirection==RIGHT){
-			robot_pos.x+=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			//robot_pos.y-=align;
 			robot_pos.phi=0;
 		}
 		else{
 			//robot_pos.x+=align;
-			robot_pos.y-=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			robot_pos.phi=-PI/2;
 		}
 	}

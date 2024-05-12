@@ -178,9 +178,9 @@ public:
     {
         float x=0;
         float y=0;
-        float phi=0;
-        float vetor[2]={1,0};
-        uint8_t direction=0;
+        float phi=PI/2;
+        float vetor[2]={0,1};
+        uint8_t direction=FRONT;
     };
 
     static SEXY_POS robot_pos;
