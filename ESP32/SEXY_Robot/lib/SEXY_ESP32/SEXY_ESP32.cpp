@@ -386,21 +386,29 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 			//robot_pos.x+=align;
 			robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			robot_pos.phi=PI/2;
+			robot_pos.vetor[0]=0;
+			robot_pos.vetor[1]=1;
 		}
 		else if (currentDirection==LEFT){
 			robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			//robot_pos.y-=align;
 			robot_pos.phi=PI;
+			robot_pos.vetor[0]=-1;
+			robot_pos.vetor[1]=0;
 		}
 		else if (currentDirection==RIGHT){
 			robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			//robot_pos.y-=align;
 			robot_pos.phi=0;
+			robot_pos.vetor[0]=1;
+			robot_pos.vetor[1]=0;
 		}
 		else{
 			//robot_pos.x+=align;
 			robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 			robot_pos.phi=-PI/2;
+			robot_pos.vetor[0]=0;
+			robot_pos.vetor[1]=-1;
 		}
 	}
 	else{	// Aquando a curva
