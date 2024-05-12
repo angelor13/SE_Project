@@ -328,7 +328,7 @@ vec2 SEXY_ESP32::getMotorVelocity() {
 	
 
     float wL = (left_velocity * 2 * PI ) / (pulse_n_per_rot);
-	float wR = (right_velocity * 2* PI ) / (pulse_n_per_rot);
+	float wR = (right_velocity * 2 * PI ) / (pulse_n_per_rot);
     
     return vec2(wL, wR);
 }
@@ -425,6 +425,8 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
   }
 }
 
+
+// NOt to use
 
 // void SEXY_ESP32::transmitSPIcom(){
 // 	//RFID_device.PCD_AntennaOff();

@@ -75,14 +75,14 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
  bot.changeCurvingState();
 }
 // void navegacao(){
-//   if(left_distance>=400 && front_distance<=1000 && right_distance>=100){  //Deteta aberturas com lidars
+//   if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
 
 //   Bot.moveMotors(0,0);
 //   delay(200);
 //   curve90Circule(vx,0.25);  // faz a curva no sentido anti-horário
 //   long start=millis();
 
-//   while(left_distance>=align+limiar || right_distance<=align-limiar|| millis()-start<=900){ // Faz a curva enquanto as seguintes condições
+//   while(left_distance>=align+limiar || right_distance<=align-limiar|| millis()-start<=800){ // Faz a curva enquanto as seguintes condições
 //   // Volta a ler distâncias
 //   left_distance=Bot.getLidarLeftDistance();
 //   front_distance=Bot.getLidarFrontDistance();
@@ -100,7 +100,7 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 // // Virar á direita, sendo que esta função poderá ser substituida pelo rotate_90_Stationary() pu apena pela navegação natural
 
 
-// if(right_distance>=400 && front_distance<=1000 && right_distance>=100){
+// if(right_distance>=400 && front_distance<=950 {
 //   int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,100,12);
 //   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
 //   Bot.moveMotors(0,0);

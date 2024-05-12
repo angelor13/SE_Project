@@ -170,10 +170,6 @@ public:
     static uint8_t currentDirection;
 
 
-    
-
-
-
     struct SEXY_POS
     {
         float x=0;
