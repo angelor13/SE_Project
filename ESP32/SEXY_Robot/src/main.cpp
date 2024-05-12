@@ -13,24 +13,25 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
 float leftW,rightW;
 
 void curve90Circule(float vx,float R, float phi){
+  bot.R=R;
   bot.changeCurvingState();
   switch (bot.currentDirection)
-{
-case bot.FRONT:
-  bot.currentDirection=bot.LEFT;
-  break;
-case bot.LEFT:
-  bot.currentDirection=bot.BACK;
-  break;
-case bot.BACK:
-  bot.currentDirection=bot.RIGHT;
-  break;
-case bot.RIGHT:
-  bot.currentDirection=bot.FRONT;
-  break;
-default:
-  break;
-}
+  {
+  case bot.FRONT:
+      bot.currentDirection=bot.LEFT;
+      break;
+  case bot.LEFT:
+      bot.currentDirection=bot.BACK;
+      break;
+  case bot.BACK:
+      bot.currentDirection=bot.RIGHT;
+      break;
+  case bot.RIGHT:
+      bot.currentDirection=bot.FRONT;
+      break;
+  default:
+      break;
+  }
   float w=vx/R;
   leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
   rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
@@ -39,21 +40,20 @@ default:
 switch (bot.currentDirection)
 {
 case bot.FRONT:
-  bot.currentDirection=bot.RIGHT;
-  break;
+    bot.currentDirection=bot.RIGHT;
+    break;
 case bot.LEFT:
-  bot.currentDirection=bot.FRONT;
-  break;
+    bot.currentDirection=bot.FRONT;
+    break;
 case bot.BACK:
-  bot.currentDirection=bot.LEFT;
-  break;
+    bot.currentDirection=bot.LEFT;
+    break;
 case bot.RIGHT:
-  bot.currentDirection=bot.BACK;
-  break;
+    bot.currentDirection=bot.BACK;
+    break;
 default:
-  break;
+    break;
 }
-
     float aux=-leftW;
     leftW=-rightW;
     rightW=aux;

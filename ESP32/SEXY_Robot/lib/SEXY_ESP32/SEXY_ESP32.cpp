@@ -40,6 +40,8 @@ float SEXY_ESP32::distanceMotorL=0;
 float SEXY_ESP32::distanceMotorR=0;
 
 long SEXY_ESP32::previous_millis=0;
+long SEXY_ESP32::previous_distanceMotorL=0;
+long SEXY_ESP32::previous_distanceMotorR=0;
 
 
 bool SEXY_ESP32::enable_send=true;
@@ -372,33 +374,45 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 	Serial.println("dotphiL:  "+(String)dotphiL);
 	Serial.println("dotphiR:  "+(String)dotphiR);
 
-	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
-	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
+	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
 	previous_millis=current_millis;
 
-	// Atulialize robot_pos
+
+	//--------------------- ODOMETRIA ----------------------------------
 
 	if(!getCurvingState()){
 		if(currentDirection==FRONT){
-			robot_pos.x+=align;
+			//robot_pos.x+=align;
 			robot_pos.y+=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.phi=PI/2;
 		}
 		else if (currentDirection==LEFT){
 			robot_pos.x-=(distanceMotorL+distanceMotorR)/2;
-			robot_pos.y-=align;
+			//robot_pos.y-=align;
+			robot_pos.phi=PI;
 		}
 		else if (currentDirection==RIGHT){
 			robot_pos.x+=(distanceMotorL+distanceMotorR)/2;
-			robot_pos.y-=align;
+			//robot_pos.y-=align;
+			robot_pos.phi=0;
 		}
 		else{
-			robot_pos.x+=align;
+			//robot_pos.x+=align;
 			robot_pos.y-=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.phi=-PI/2;
 		}
 	}
 	else{
-
+		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+		float raio=R;	
+		float delta_phi = (delta_d*2*PI)/(2*PI*R);
+		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
+		robot_pos.y += delta_d * sin(robot_pos.y + delta_phi/2);
+		robot_pos.phi+= delta_phi;
 	}
+	previous_distanceMotorL=distanceMotorL;
+	previous_distanceMotorR=distanceMotorR;
 	delay(500);
   }
 }

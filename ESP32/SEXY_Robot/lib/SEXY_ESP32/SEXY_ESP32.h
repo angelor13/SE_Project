@@ -25,6 +25,8 @@ private:                        // Index Map:
 
     static float distanceMotorR,distanceMotorL;
     static long previous_millis;
+    static long previous_distanceMotorL;
+    static long previous_distanceMotorR;
 
     static bool enable_send;
     static bool curving;
