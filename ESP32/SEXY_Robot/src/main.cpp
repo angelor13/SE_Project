@@ -13,11 +13,47 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
 float leftW,rightW;
 
 void curve90Circule(float vx,float R, float phi){
+  bot.changeCurvingState();
+  switch (bot.currentDirection)
+{
+case bot.FRONT:
+  bot.currentDirection=bot.LEFT;
+  break;
+case bot.LEFT:
+  bot.currentDirection=bot.BACK;
+  break;
+case bot.BACK:
+  bot.currentDirection=bot.RIGHT;
+  break;
+case bot.RIGHT:
+  bot.currentDirection=bot.FRONT;
+  break;
+default:
+  break;
+}
   float w=vx/R;
   leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
   rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
 
   if(vx<0){
+switch (bot.currentDirection)
+{
+case bot.FRONT:
+  bot.currentDirection=bot.RIGHT;
+  break;
+case bot.LEFT:
+  bot.currentDirection=bot.FRONT;
+  break;
+case bot.BACK:
+  bot.currentDirection=bot.LEFT;
+  break;
+case bot.RIGHT:
+  bot.currentDirection=bot.BACK;
+  break;
+default:
+  break;
+}
+
     float aux=-leftW;
     leftW=-rightW;
     rightW=aux;
@@ -27,15 +63,16 @@ void curve90Circule(float vx,float R, float phi){
 bot.moveMotors(leftW,rightW);
 long start_Ldistance=bot.getDistanceL();
 long start_Rdistance=bot.getDistanceR();
-uint32_t align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
- while (start_Ldistance>=align+limiar || start_Rdistance<=align-limiar|| (bot.getDistanceL()-start_Ldistance<=phi*((R*100)-(bot.L/2))/(2*PI) && bot.getDistanceR()-start_Rdistance<=phi*((R*100)+(bot.L/2)/(2*PI))))
+bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
+ while (start_Ldistance>=bot.align+limiar || start_Rdistance<=bot.dotphiL-limiar|| (bot.getDistanceL()-start_Ldistance<=phi*((R*100)-(bot.L/2))/(2*PI) && bot.getDistanceR()-start_Rdistance<=phi*((R*100)+(bot.L/2)/(2*PI))))
  {
 
   start_Ldistance=bot.getDistanceL();
   start_Rdistance=bot.getDistanceR();
-  align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
+  bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 
  }
+ bot.changeCurvingState();
 }
 // void navegacao(){
 //   if(left_distance>=400 && front_distance<=1000 && right_distance>=100){  //Deteta aberturas com lidars

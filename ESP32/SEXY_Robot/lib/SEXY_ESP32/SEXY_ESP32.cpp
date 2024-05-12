@@ -28,6 +28,10 @@ float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
 float SEXY_ESP32::w=0;
 float SEXY_ESP32::PercentL=0,PercentR=0;
+bool SEXY_ESP32::curving=false;
+uint8_t SEXY_ESP32::currentDirection=FRONT;
+uint32_t SEXY_ESP32::align=0;
+
 
 SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
 
@@ -348,6 +352,7 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 }
 
 
+
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
 	vec2 buffer;
@@ -373,11 +378,27 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	// Atulialize robot_pos
 
+	if(!getCurvingState()){
+		if(currentDirection==FRONT){
+			robot_pos.x+=align;
+			robot_pos.y+=(distanceMotorL+distanceMotorR)/2;
+		}
+		else if (currentDirection==LEFT){
+			robot_pos.x-=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.y-=align;
+		}
+		else if (currentDirection==RIGHT){
+			robot_pos.x+=(distanceMotorL+distanceMotorR)/2;
+			robot_pos.y-=align;
+		}
+		else{
+			robot_pos.x+=align;
+			robot_pos.y-=(distanceMotorL+distanceMotorR)/2;
+		}
+	}
+	else{
 
-
-
-
-
+	}
 	delay(500);
   }
 }
@@ -416,6 +437,21 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   mapPointCloud.push_back(dir_right);
 
   delay(10);
+}
+
+
+void SEXY_ESP32::changeCurvingState(){
+	if(curving==false){
+		curving=true;
+	}
+	else{
+		curving=false;
+	}
+}
+
+
+bool SEXY_ESP32::getCurvingState(){
+	return curving;
 }
 
 void SEXY_ESP32::taskReadRFID(void*){

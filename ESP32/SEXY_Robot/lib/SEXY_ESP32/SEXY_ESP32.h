@@ -27,6 +27,7 @@ private:                        // Index Map:
     static long previous_millis;
 
     static bool enable_send;
+    static bool curving;
 
     // Pin constants
 
@@ -155,8 +156,20 @@ public:
 
     static constexpr float MAXPERCENT=100;
     static float PercentL,PercentR;
+
+    static uint32_t align;
     
     static constexpr float MAX_Vx=40;
+
+    static const uint8_t FRONT=0;
+    static const uint8_t BACK=1;
+    static const uint8_t LEFT=2;
+    static const uint8_t RIGHT=3;
+    static uint8_t currentDirection;
+
+
+    
+
 
 
     struct SEXY_POS
@@ -165,6 +178,7 @@ public:
         float y=0;
         float phi=0;
         float vetor[2]={1,0};
+        uint8_t direction=0;
     };
 
     static SEXY_POS robot_pos;
@@ -210,6 +224,9 @@ public:
     static float getW();
     static float getR(float Raio);
 
+    static void changeCurvingState();
+
+    static bool getCurvingState();
 
     static vec2 getMotorVelocity();
     static  void setMotorVelocity(float left_velocity, float right_velocity);
