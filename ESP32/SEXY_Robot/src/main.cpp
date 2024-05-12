@@ -101,8 +101,8 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 
 
 // if(right_distance>=400 && front_distance<=1000 && right_distance>=100){
-//   int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,511,60);
-//   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,5,300);
+//   int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,100,12);
+//   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
 //   Bot.moveMotors(0,0);
 //   delay(200);
 //   curve90Circule(-vx,0.2);  // faz a curva no sentido anti-horário
@@ -124,8 +124,8 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 
 // if((left_distance>=align+limiar || left_distance<=align-limiar ) && front_distance>=65){
   
-//   left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50,log(1300)+50,511,-20);
-//   right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50, log(1300)+50,-70,500);
+//   left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50,log(1300)+50,100,-4);
+//   right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50, log(1300)+50,-14,98);
 //   Bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
 // }
 //}

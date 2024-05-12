@@ -224,7 +224,7 @@ public:
     static float getDotphiR();          // Maybe unused
     static float getVx();
     static float getW();
-    static float getR(float Raio);
+    //static float getR(float Raio);
 
     static void changeCurvingState();
 

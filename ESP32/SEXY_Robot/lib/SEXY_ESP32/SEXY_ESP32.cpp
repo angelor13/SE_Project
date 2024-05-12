@@ -341,7 +341,7 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 	float righ_omega = right_velocity / raio;
 
     float dptL = (left_omega * pulse_n_per_rot) / (2*PI);
-	float dptR = (righ_omega * pulse_n_per_rot) /  (2*PI);
+	float dptR = (righ_omega * pulse_n_per_rot) / (2*PI);
 
     int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
 	//Serial.println(dptL);
@@ -403,12 +403,12 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 			robot_pos.phi=-PI/2;
 		}
 	}
-	else{
+	else{	// Aquando a curva
 		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 		float raio=R;	
 		float delta_phi = (delta_d*2*PI)/(2*PI*R);
 		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
-		robot_pos.y += delta_d * sin(robot_pos.y + delta_phi/2);
+		robot_pos.y += delta_d * sin(robot_pos.phi + delta_phi/2);
 		robot_pos.phi+= delta_phi;
 	}
 	previous_distanceMotorL=distanceMotorL;
@@ -475,7 +475,7 @@ void SEXY_ESP32::taskReadRFID(void*){
   }
 }
 
-bool SEXY_ESP32 ::getTagDetected(){
+bool SEXY_ESP32::getTagDetected(){
   return isTagDetected;
 }
 
@@ -534,10 +534,10 @@ float SEXY_ESP32::getW(){
   return w;
 }
 
-float SEXY_ESP32::getR(float Raio){
-  R=Raio;
-  return R;
-}
+// float SEXY_ESP32::getR(float Raio){
+//   R=Raio;
+//   return R;
+// }
 
 
 float SEXY_ESP32::getDistanceL(){
