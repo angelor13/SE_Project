@@ -103,7 +103,7 @@ void loop() {
 
     digitalWrite(5, 1);
 
-    delay(100);
+    delay(500);
     // if(bot.getTagDetected()){
     //   Serial.println("Tag detected");
     // }
