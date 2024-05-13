@@ -74,7 +74,7 @@ int32_t getMotorDeltaRight() {
 }
 
 void setMotorDeltaLeft(int32_t new_delta) {
-	int32_t pid = 65535 - (int32_t)(PID_Control(1.1, 0.02, 0.001, new_delta, delta_left));
+	int32_t pid = 65535 - (int32_t)(PID_Control(20, 900, 0.1, new_delta, delta_left));
 
 	if (pid > 65535) {
 		pid = 65535;

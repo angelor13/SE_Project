@@ -4,7 +4,7 @@
 #define ERROR_INTEGRAL_MAX 1000
 #define PID_OUTPUT_MAX 65535
 
-inline float constrain(float x, float min, float max) {
+float constrain(float x, float min, float max) {
 	if (x < min) {
 		return min;
 	} else if (x > max) {
