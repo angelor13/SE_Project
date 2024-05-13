@@ -28,6 +28,10 @@ float SEXY_ESP32::dotphiR;
 float SEXY_ESP32::vx=0;
 float SEXY_ESP32::w=0;
 float SEXY_ESP32::PercentL=0,PercentR=0;
+bool SEXY_ESP32::curving=false;
+uint8_t SEXY_ESP32::currentDirection=FRONT;
+uint32_t SEXY_ESP32::align=0;
+
 
 SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
 
@@ -36,6 +40,8 @@ float SEXY_ESP32::distanceMotorL=0;
 float SEXY_ESP32::distanceMotorR=0;
 
 long SEXY_ESP32::previous_millis=0;
+long SEXY_ESP32::previous_distanceMotorL=0;
+long SEXY_ESP32::previous_distanceMotorR=0;
 
 
 bool SEXY_ESP32::enable_send=true;
@@ -125,7 +131,7 @@ void SEXY_ESP32::begin() {
 	setupRFID();
 	setupSPI();
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-	// xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+	//xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
@@ -134,7 +140,8 @@ void SEXY_ESP32::begin() {
  */
 void SEXY_ESP32::moveMotorLeft(int16_t perL) {
 	perL = constrain(perL , -MAXPERCENT, MAXPERCENT);
-	transmitSPIcom(perL*MAX_DOTPHI);
+	setMotorVelocity(perL*MAX_Vx,0);
+
 }
 
 /**
@@ -143,7 +150,7 @@ void SEXY_ESP32::moveMotorLeft(int16_t perL) {
  */
 void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
 	perR = constrain(perR , -MAXPERCENT, MAXPERCENT);
-	transmitSPIcom(perR*MAX_DOTPHI);
+	setMotorVelocity(0,perR*MAX_Vx);
 }
 
 /**
@@ -152,16 +159,14 @@ void SEXY_ESP32 :: moveMotorRight(int16_t perR) {
   @param perR desired duty cycle for right motor, value between [-100,100]
  */
 void SEXY_ESP32::moveMotors(int16_t perL, int16_t perR) {
-	moveMotorLeft(perL);
-	moveMotorRight(perR);
+	setMotorVelocity(perL*MAX_Vx,perR*MAX_Vx);
 }
 
 /**
   @brief Stop Motors
  */
 void SEXY_ESP32::stopMotors(){
-  moveMotorLeft(0);
-  moveMotorRight(0);
+	moveMotors(0,0);
 }
 /**
  * @brief Get the left distance value, in millimeters.
@@ -304,31 +309,134 @@ void SEXY_ESP32::printI2C() {
 	Serial.println(" device(s).");
 }
 
+/// @brief Get motor velocities measured from encoders in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction.
+/// @return vec2(LEFT_VELOCITY, RIGHT_VELOCITY)
+vec2 SEXY_ESP32::getMotorVelocity() {
+    int32_t rxdata[2];
+	float raio=r*100;
+    const int pulse_n_per_rot=1470;
+
+    digitalWrite(VSPI_SS, 0);
+    SPI.transfer(0xAB);
+    SPI.transfer(0xCD);
+    SPI.transfer(rxdata, sizeof(rxdata));
+    digitalWrite(VSPI_SS, 1);
+
+    float left_velocity = (rxdata[0] / 1.0f);
+    float right_velocity = (rxdata[1] / 1.0f);
+
+	
+
+    float wL = (left_velocity * 2 * PI ) / (pulse_n_per_rot);
+	float wR = (right_velocity * 2 * PI ) / (pulse_n_per_rot);
+    
+    return vec2(wL, wR);
+}
+
+/// @brief Set motor velocities in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction. [TO BE IMPLEMENTED ON STM32]
+void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
+	float raio=r*100;
+    const int pulse_n_per_rot=1470;
+    float left_omega = left_velocity / raio;
+	float righ_omega = right_velocity / raio;
+
+    float dptL = (left_omega * pulse_n_per_rot) / (2*PI);
+	float dptR = (righ_omega * pulse_n_per_rot) / (2*PI);
+
+    int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
+	//Serial.println(dptL);
+
+    digitalWrite(VSPI_SS, 0);
+    SPI.transfer(0xDE);
+    SPI.transfer(0xAD);
+    SPI.transfer(txdata, sizeof(txdata));
+    digitalWrite(VSPI_SS, 1);
+}
+
+
+
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){
-
-	RFID_device.PCD_AntennaOff();
-	long current_millis=millis();
-	digitalWrite(VSPI_SS, LOW);
-	SPI.transferBytes(NULL,RxBuffer,sizeof(RxBuffer));
-	digitalWrite(VSPI_SS, HIGH);
-	RFID_device.PCD_AntennaOn();
-	dotphiL=(float)RxBuffer[0];
-	dotphiR=(float)RxBuffer[1];
+	vec2 buffer;
 	//Serial.println("Data Transmition");
-	Serial.println((String)RxBuffer[0]);
-	Serial.println((String)RxBuffer[1]);
-	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis);
-	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis);
+	//RFID_device.PCD_AntennaOff();
+	long current_millis=millis();
+
+	buffer=getMotorVelocity();
+
+	//RFID_device.PCD_AntennaOn();
+
+	dotphiL=(float)buffer.x;	
+	dotphiR=(float)buffer.y;
+
+	//Serial.println("Data Transmition");
+
+	Serial.println("dotphiL:  "+(String)dotphiL);
+	Serial.println("dotphiR:  "+(String)dotphiR);
+
+	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
+	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
 	previous_millis=current_millis;
 
-	// Atulialize robot_pos
 
+	//--------------------- ODOMETRIA ----------------------------------
 
-
-	delay(10);
+	if(!getCurvingState()){
+		if(currentDirection==FRONT){
+			//robot_pos.x+=align;
+			robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+			robot_pos.phi=PI/2;
+			robot_pos.vetor[0]=0;
+			robot_pos.vetor[1]=1;
+		}
+		else if (currentDirection==LEFT){
+			robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+			//robot_pos.y-=align;
+			robot_pos.phi=PI;
+			robot_pos.vetor[0]=-1;
+			robot_pos.vetor[1]=0;
+		}
+		else if (currentDirection==RIGHT){
+			robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+			//robot_pos.y-=align;
+			robot_pos.phi=0;
+			robot_pos.vetor[0]=1;
+			robot_pos.vetor[1]=0;
+		}
+		else{
+			//robot_pos.x+=align;
+			robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+			robot_pos.phi=-PI/2;
+			robot_pos.vetor[0]=0;
+			robot_pos.vetor[1]=-1;
+		}
+	}
+	else{	// Aquando a curva
+		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+		float raio=R;	
+		float delta_phi = (delta_d*2*PI)/(2*PI*R);
+		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
+		robot_pos.y += delta_d * sin(robot_pos.phi + delta_phi/2);
+		robot_pos.phi+= delta_phi;
+	}
+	previous_distanceMotorL=distanceMotorL;
+	previous_distanceMotorR=distanceMotorR;
+	delay(500);
   }
 }
+
+
+// NOt to use
+
+// void SEXY_ESP32::transmitSPIcom(){
+// 	//RFID_device.PCD_AntennaOff();
+// 	digitalWrite(VSPI_SS, LOW);
+// 	SPI.transferBytes(TxBuffer,NULL,sizeof(TxBuffer));
+// 	digitalWrite(VSPI_SS, HIGH);
+// 	//RFID_device.PCD_AntennaOn();
+
+// }
+
 
 void SEXY_ESP32::taskGetPointCloud(void*){
 
@@ -343,6 +451,7 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   vec2 dir_front = vec2(cos(0+robot_pos.phi)*frontDistance,sin(0+robot_pos.phi)*frontDistance);
   vec2 dir_right = vec2(cos(-PI/4+robot_pos.phi)*rightDistance,sin(-PI/4+robot_pos.phi)*rightDistance);
 
+  // Dont need robot phi 
   dir_left+=atual_pos;
   dir_front+=atual_pos;
   dir_right+=atual_pos;
@@ -351,8 +460,22 @@ void SEXY_ESP32::taskGetPointCloud(void*){
   mapPointCloud.push_back(dir_front);
   mapPointCloud.push_back(dir_right);
 
-
   delay(10);
+}
+
+
+void SEXY_ESP32::changeCurvingState(){
+	if(curving==false){
+		curving=true;
+	}
+	else{
+		curving=false;
+	}
+}
+
+
+bool SEXY_ESP32::getCurvingState(){
+	return curving;
 }
 
 void SEXY_ESP32::taskReadRFID(void*){
@@ -362,7 +485,7 @@ void SEXY_ESP32::taskReadRFID(void*){
   }
 }
 
-bool SEXY_ESP32 ::getTagDetected(){
+bool SEXY_ESP32::getTagDetected(){
   return isTagDetected;
 }
 
@@ -421,10 +544,10 @@ float SEXY_ESP32::getW(){
   return w;
 }
 
-float SEXY_ESP32::getR(float Raio){
-  R=Raio;
-  return R;
-}
+// float SEXY_ESP32::getR(float Raio){
+//   R=Raio;
+//   return R;
+// }
 
 
 float SEXY_ESP32::getDistanceL(){

@@ -25,8 +25,11 @@ private:                        // Index Map:
 
     static float distanceMotorR,distanceMotorL;
     static long previous_millis;
+    static long previous_distanceMotorL;
+    static long previous_distanceMotorR;
 
     static bool enable_send;
+    static bool curving;
 
     // Pin constants
 
@@ -111,7 +114,7 @@ private:                        // Index Map:
 
     
     // Tansmit SPI COM
-    static void transmitSPIcom(int32_t value);
+   // static void transmitSPIcom(void);
 
 
     // Tasks Handles_t
@@ -155,16 +158,25 @@ public:
 
     static constexpr float MAXPERCENT=100;
     static float PercentL,PercentR;
+
+    static uint32_t align;
     
-    static constexpr float MAX_DOTPHI=40;
+    static constexpr float MAX_Vx=40;
+
+    static const uint8_t FRONT=0;
+    static const uint8_t BACK=1;
+    static const uint8_t LEFT=2;
+    static const uint8_t RIGHT=3;
+    static uint8_t currentDirection;
 
 
     struct SEXY_POS
     {
         float x=0;
         float y=0;
-        float phi=0;
-        float vetor[2]={1,0};
+        float phi=PI/2;
+        float vetor[2]={0,1};
+        uint8_t direction=FRONT;
     };
 
     static SEXY_POS robot_pos;
@@ -208,7 +220,14 @@ public:
     static float getDotphiR();          // Maybe unused
     static float getVx();
     static float getW();
-    static float getR(float Raio);
+    //static float getR(float Raio);
+
+    static void changeCurvingState();
+
+    static bool getCurvingState();
+
+    static vec2 getMotorVelocity();
+    static  void setMotorVelocity(float left_velocity, float right_velocity);
 
     void transmitDataSPI(uint32_t value, uint8_t flag);
     uint32_t receiveDataSPI(uint8_t flag);
