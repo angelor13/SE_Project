@@ -428,6 +428,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 // NOt to use
 
+
 // void SEXY_ESP32::transmitSPIcom(){
 // 	//RFID_device.PCD_AntennaOff();
 // 	digitalWrite(VSPI_SS, LOW);
