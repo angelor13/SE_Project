@@ -103,7 +103,7 @@ void SEXY_ESP32::setupSPI(){
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi,VSPI_SS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
-  SPI.setFrequency(1000);
+  SPI.setFrequency(100000);
 }
 
 /**
