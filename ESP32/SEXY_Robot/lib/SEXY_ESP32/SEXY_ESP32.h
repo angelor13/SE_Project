@@ -161,7 +161,7 @@ public:
 
     static uint32_t align;
     
-    static constexpr float MAX_Vx=30;
+    static constexpr float MAX_Vx=8.4;
 
     static const uint8_t FRONT=0;
     static const uint8_t BACK=1;
