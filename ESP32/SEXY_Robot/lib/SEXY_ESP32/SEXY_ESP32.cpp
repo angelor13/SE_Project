@@ -60,7 +60,7 @@ void SEXY_ESP32::setupMotors() {
  * @brief Initialize the Lidar front
  */
 void SEXY_ESP32::setupLidar() {
-	Wire.begin();
+	Wire.begin(PIN_SDA_FRONT,PIN_SCL_FRONT);
 
 	// LiDAR
 	pinMode(PIN_XSHUT_FRONT, OUTPUT);
@@ -109,29 +109,28 @@ void SEXY_ESP32::setupSPI(){
 /**
  * @brief Initialize the ADC
  */
-void SEXY_ESP32::setupADC(){
-gasADC.begin(ADDR_ADC);
-}
-/**
- * @brief Initialize the RFID.
- */
-void SEXY_ESP32::setupRFID() {
-  //SPI.begin();
-  RFID_device.PCD_Init();
-}
+// void SEXY_ESP32::setupADC(){
+// gasADC.begin(ADDR_ADC);
+// }
+// /**
+//  * @brief Initialize the RFID.
+//  */
+// void SEXY_ESP32::setupRFID() {
+//   //SPI.begin();
+//   RFID_device.PCD_Init();
+// }
 
  /**
  * @brief Initialize the hardware interface. Must be called to interact with robot.
  */
 void SEXY_ESP32::begin() {
-	//setupMotors();
-	setupADC();
+	//setupADC();
 	setupSharps();
-	// setupLidar();
-	setupRFID();
+	setupLidar();
+	//setupRFID();
 	setupSPI();
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-	//xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+	xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
@@ -174,7 +173,7 @@ void SEXY_ESP32::stopMotors(){
  */
 uint16_t SEXY_ESP32::getLeftDistance(){
   uint16_t value=analogRead(PIN_VP_LEFT);
-  return constrain(map(value,0,4095,100,800),100,800);
+  return constrain(map(value,0,4095,800,100),100,800);
 }
 /**
  * @brief Get the front LiDAR distance value, in millimeters.
@@ -191,7 +190,7 @@ uint16_t SEXY_ESP32::getFrontDistance() {
  */
 uint16_t SEXY_ESP32::getRightDistance(){
   uint16_t value=analogRead(PIN_VP_RIGHT);
-  return constrain(map(value,0,4095,100,800),100,800);
+  return constrain(map(value,0,4095,800,100),100,800);
 }
 
 uint16_t SEXY_ESP32::getADCvalue(){
@@ -317,8 +316,8 @@ vec2 SEXY_ESP32::getMotorVelocity() {
     const int pulse_n_per_rot=1470;
 
     digitalWrite(VSPI_SS, 0);
-    SPI.transfer(0xAB);
-    SPI.transfer(0xCD);
+    SPI.write(0xAB);
+    SPI.write(0xCD);
     SPI.transfer(rxdata, sizeof(rxdata));
     digitalWrite(VSPI_SS, 1);
 
@@ -340,15 +339,16 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     float left_omega = left_velocity / raio;
 	float righ_omega = right_velocity / raio;
 
-    float dptL = (left_omega * pulse_n_per_rot) / (2*PI);
-	float dptR = (righ_omega * pulse_n_per_rot) / (2*PI);
+    float dptL = constrain((left_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
+	float dptR = constrain((righ_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
 
     int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
-	//Serial.println(dptL);
+	Serial.println(dptL);
+	Serial.println(dptR);
 
     digitalWrite(VSPI_SS, 0);
-    SPI.transfer(0xDE);
-    SPI.transfer(0xAD);
+    SPI.write(0xDE);
+    SPI.write(0xAD);
     SPI.transfer(txdata, sizeof(txdata));
     digitalWrite(VSPI_SS, 1);
 }

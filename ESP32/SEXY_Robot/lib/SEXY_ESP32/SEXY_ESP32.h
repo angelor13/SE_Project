@@ -71,7 +71,7 @@ private:                        // Index Map:
 
 
 
-    static constexpr uint16_t ADDR_LIDAR_FRONT= 0x71;
+    static constexpr uint16_t ADDR_LIDAR_FRONT= 0x29;
 
     static const uint32_t DIST_LIDAR_MIN = 0;
     static const uint32_t DIST_LIDAR_MAX = 2600;
@@ -144,10 +144,10 @@ private:                        // Index Map:
 
     // Declarations
     static void setupWifi();
-    static void setupADC();
+    //static void setupADC();
     static void setupSharps();
     static void setupLidar();
-    static void setupRFID();
+    //static void setupRFID();
     static void setupMotors();
     static void setupSPI();
 
@@ -161,7 +161,7 @@ public:
 
     static uint32_t align;
     
-    static constexpr float MAX_Vx=40;
+    static constexpr float MAX_Vx=30;
 
     static const uint8_t FRONT=0;
     static const uint8_t BACK=1;

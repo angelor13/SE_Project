@@ -140,62 +140,73 @@ byte tx=10;
 
 
 
-
-
-
-
-
-
-
-
 void loop() {
-  delay(1);
   // if(bot.getTagDetected()){
   //   Serial.println("Tag detected");
   // }
-// bot.setMotorVelocity(5,5);
-bot.moveMotors(100,100);
-delay(40);
+//bot.moveMotors(10,10);
+
+uint32_t left_distance=bot.getLeftDistance();
+uint32_t front_distance=bot.getFrontDistance();
+uint32_t right_distance=bot.getRightDistance();
+bot.align=(left_distance*sin(PI/4)+right_distance*sin(PI/4))/2;
+
+Serial.println("Esquerda: "+(String)left_distance+"Center: "+(String)front_distance+"Right: "+(String)right_distance);
+
+
+  if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
+
+  bot.moveMotors(0,0);
+  delay(200);
+  curve90Circule(bot.vx,0.25,PI/4);  // faz a curva no sentido anti-horário
+  long start=millis();
+
+  while(left_distance>=bot.align+limiar || right_distance<=bot.align-limiar|| millis()-start<=800){ // Faz a curva enquanto as seguintes condições
+  // Volta a ler distâncias
+  left_distance=bot.getLeftDistance();
+  front_distance=bot.getFrontDistance();
+  right_distance=bot.getRightDistance();
+
+    if(left_distance<=40){
+    break;
+  }
+  }
+  bot.moveMotors(0,0);
+  delay(100);
+ }
+//Serial.println("  Esquerda: "+(String)left_distance+" Frente:  "+(String)front_distance+"  Direita:  "+(String)right_distance);
+
+// Virar á direita, sendo que esta função poderá ser substituida pelo rotate_90_Stationary() pu apena pela navegação natural
+
+
+if(right_distance>=400 && front_distance<=950) {
+  int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,100,12);
+  int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
+  bot.moveMotors(0,0);
+  delay(200);
+  curve90Circule(-bot.vx,0.2,PI/4);  // faz a curva no sentido anti-horário
+  long start=millis();
+  while(left_distance>=bot.align+limiar || right_distance>=bot.align-limiar||  millis()-start<=900){
+    // Volta a ler distâncias
+  left_distance=bot.getLeftDistance();
+  front_distance=bot.getFrontDistance();
+  right_distance=bot.getRightDistance();
+  if(left_distance<=40){
+    break;
+  }
+  }
+    bot.moveMotors(0,0);
+    delay(100);
+ }
+
+ // Navegação natural seguindo a parede esquerda
+
+if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
   
-  // for(int i=0;i<2;i++){
-  //   Serial.println((String)bot.dotphiL + (String)bot.dotphiR );
+  float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(1300)+50,100,-4);
+  float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(1300)+50,-14,98);
+  bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
+}
 
-  // }
-  // digitalWrite(5, LOW);
-  // SPI.transferBytes(rx,NULL, sizeof(rx));
-  // digitalWrite(5, HIGH);
-  //   for(int i=0;i<2;i++){
-  //   Serial.println((String)rx[0] + (String)rx[1] );
-  // }
-
-// uint32_t left_distance=bot.getLeftDistance();
-// uint32_t front_distance=bot.getFrontDistance();
-// uint32_t right_distance=bot.getRightDistance();
-
-// Real Code
-
-
-// bot.moveMotors(500,500);    // andar os pimeiros 50 cm
-// long start_Ldistance=bot.getDistanceL();
-// long start_Rdistance=bot.getDistanceR();
-// while(bot.getDistanceL()-start_Ldistance<=50 && bot.getDistanceR()-start_Rdistance<=50){
-
-// }
-
-
-// curve90Circule(bot.getVx(),bot.getR(0.5));
-// start_Ldistance=bot.getDistanceL();
-// start_Rdistance=bot.getDistanceR();
-// while (bot.getDistanceL()-start_Ldistance<=2*PI*(50-(bot.L/2)) && bot.getDistanceR()-start_Rdistance<=2*PI*(50+(bot.L/2)) )
-// {
-
-// }
-
-//    vec2 deltas = bot.getMotorDeltas();
-
-//     Serial.printf("Left: %.5f, Right: %.5f\n", deltas.x, deltas.y);
-
-//     delay(100);
-
-
+delay(40);
 }
