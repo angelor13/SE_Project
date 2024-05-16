@@ -356,7 +356,7 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
-  while(1){
+  while(1){	
 	vec2 buffer;
 	//Serial.println("Data Transmition");
 	//RFID_device.PCD_AntennaOff();
@@ -382,47 +382,48 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	//--------------------- ODOMETRIA ----------------------------------
 
-	if(!getCurvingState()){
-		if(currentDirection==FRONT){
-			//robot_pos.x+=align;
-			robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			robot_pos.phi=PI/2;
-			robot_pos.vetor[0]=0;
-			robot_pos.vetor[1]=1;
-		}
-		else if (currentDirection==LEFT){
-			robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			//robot_pos.y-=align;
-			robot_pos.phi=PI;
-			robot_pos.vetor[0]=-1;
-			robot_pos.vetor[1]=0;
-		}
-		else if (currentDirection==RIGHT){
-			robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			//robot_pos.y-=align;
-			robot_pos.phi=0;
-			robot_pos.vetor[0]=1;
-			robot_pos.vetor[1]=0;
-		}
-		else{
-			//robot_pos.x+=align;
-			robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			robot_pos.phi=-PI/2;
-			robot_pos.vetor[0]=0;
-			robot_pos.vetor[1]=-1;
-		}
-	}
-	else{	// Aquando a curva
+	// if(!getCurvingState()){
+	// 	if(currentDirection==FRONT){
+	// 		//robot_pos.x+=align;
+	// 		robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		robot_pos.phi=PI/2;
+	// 		robot_pos.vetor[0]=0;
+	// 		robot_pos.vetor[1]=1;
+	// 	}
+	// 	else if (currentDirection==LEFT){
+	// 		robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		//robot_pos.y-=align;
+	// 		robot_pos.phi=PI;
+	// 		robot_pos.vetor[0]=-1;
+	// 		robot_pos.vetor[1]=0;
+	// 	}
+	// 	else if (currentDirection==RIGHT){
+	// 		robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		//robot_pos.y-=align;
+	// 		robot_pos.phi=0;
+	// 		robot_pos.vetor[0]=1;
+	// 		robot_pos.vetor[1]=0;
+	// 	}
+	// 	else{
+	// 		//robot_pos.x+=align;
+	// 		robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		robot_pos.phi=-PI/2;
+	// 		robot_pos.vetor[0]=0;
+	// 		robot_pos.vetor[1]=-1;
+	// 	}
+	// }
+	// else{	// Aquando a curva
 		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-		float raio=R;	
-		float delta_phi = (delta_d*2*PI)/(2*PI*R);
+		float raio=R;
+		float delta_phi=w*(current_millis-previous_millis);	
+		//float delta_phi = (delta_d*2*PI)/(2*PI*R);
 		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
 		robot_pos.y += delta_d * sin(robot_pos.phi + delta_phi/2);
 		//robot_pos.phi+= delta_phi;
 		
-		robot_pos.phi=w*(current_millis-previous_millis); // another way to program or maybe the best way
+		robot_pos.phi+=delta_phi; 	// another way to program or maybe the best way
 		
-	}
+	//}
 	previous_distanceMotorL=distanceMotorL;
 	previous_distanceMotorR=distanceMotorR;
 
