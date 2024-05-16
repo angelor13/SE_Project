@@ -231,7 +231,9 @@ public:
 
     void transmitDataSPI(uint32_t value, uint8_t flag);
     uint32_t receiveDataSPI(uint8_t flag);
+    
     // Other functions
+
     static float getDistanceR();
     static float getDistanceL();
 

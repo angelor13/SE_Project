@@ -353,8 +353,6 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     digitalWrite(VSPI_SS, 1);
 }
 
-
-
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){	
 	vec2 buffer;
