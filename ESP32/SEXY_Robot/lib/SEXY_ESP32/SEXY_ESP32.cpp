@@ -20,13 +20,13 @@ Adafruit_ADS1115 SEXY_ESP32::gasADC;
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
 
-float SEXY_ESP32::R=0.5;
-float SEXY_ESP32::L=0.12;
-float SEXY_ESP32::r=0.03;
+float SEXY_ESP32::R=0.2;
+float SEXY_ESP32::L=0.1605;
+float SEXY_ESP32::r=0.0455/2;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
-float SEXY_ESP32::vx=0;
-float SEXY_ESP32::w=0;
+float SEXY_ESP32::vx=1;
+float SEXY_ESP32::w=vx/R;
 float SEXY_ESP32::PercentL=0,PercentR=0;
 bool SEXY_ESP32::curving=false;
 uint8_t SEXY_ESP32::currentDirection=FRONT;
@@ -368,6 +368,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	dotphiL=(float)buffer.x;	
 	dotphiR=(float)buffer.y;
+	w=calculatedW(dotphiR,dotphiL,R,r);
 
 	//Serial.println("Data Transmition");
 
@@ -376,7 +377,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
 	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
-	previous_millis=current_millis;
+	
 
 
 	//--------------------- ODOMETRIA ----------------------------------
@@ -417,10 +418,16 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 		float delta_phi = (delta_d*2*PI)/(2*PI*R);
 		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
 		robot_pos.y += delta_d * sin(robot_pos.phi + delta_phi/2);
-		robot_pos.phi+= delta_phi;
+		//robot_pos.phi+= delta_phi;
+		
+		robot_pos.phi=w*(current_millis-previous_millis); // another way to program or maybe the best way
+		
 	}
 	previous_distanceMotorL=distanceMotorL;
 	previous_distanceMotorR=distanceMotorR;
+
+	previous_millis=current_millis;
+
 	delay(500);
   }
 }

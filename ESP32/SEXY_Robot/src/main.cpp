@@ -74,61 +74,7 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
  }
  bot.changeCurvingState();
 }
-// void navegacao(){
-//   if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
 
-//   Bot.moveMotors(0,0);
-//   delay(200);
-//   curve90Circule(vx,0.25);  // faz a curva no sentido anti-horário
-//   long start=millis();
-
-//   while(left_distance>=align+limiar || right_distance<=align-limiar|| millis()-start<=800){ // Faz a curva enquanto as seguintes condições
-//   // Volta a ler distâncias
-//   left_distance=Bot.getLidarLeftDistance();
-//   front_distance=Bot.getLidarFrontDistance();
-//   right_distance=Bot.getLidarRightDistance();
-
-//     if(left_distance<=40){
-//     break;
-//   }
-//   }
-//   Bot.moveMotors(0,0);
-//   delay(100);
-//  }
-// //Serial.println("  Esquerda: "+(String)left_distance+" Frente:  "+(String)front_distance+"  Direita:  "+(String)right_distance);
-
-// // Virar á direita, sendo que esta função poderá ser substituida pelo rotate_90_Stationary() pu apena pela navegação natural
-
-
-// if(right_distance>=400 && front_distance<=950 {
-//   int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,100,12);
-//   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
-//   Bot.moveMotors(0,0);
-//   delay(200);
-//   curve90Circule(-vx,0.2);  // faz a curva no sentido anti-horário
-//   long start=millis();
-//   while(left_distance>=align+limiar || right_distance>=align-limiar||  millis()-start<=900){
-//     // Volta a ler distâncias
-//   left_distance=Bot.getLidarLeftDistance();
-//   front_distance=Bot.getLidarFrontDistance();
-//   right_distance=Bot.getLidarRightDistance();
-//   if(left_distance<=40){
-//     break;
-//   }
-//   }
-//     Bot.moveMotors(0,0);
-//   delay(100);
-//  }
-
-//  // Navegação natural seguindo a parede esquerda
-
-// if((left_distance>=align+limiar || left_distance<=align-limiar ) && front_distance>=65){
-  
-//   left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50,log(1300)+50,100,-4);
-//   right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*align)+50),50, log(1300)+50,-14,98);
-//   Bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
-// }
-//}
 void setup(){
   
   Serial.begin(115200);
@@ -148,7 +94,7 @@ void loop() {
 // uint32_t right_distance=bot.getRightDistance();
 // bot.align=(left_distance*sin(PI/4)+right_distance*sin(PI/4))/2;
 
-// Serial.println("Esquerda: "+(String)left_distance+"Center: "+(String)front_distance+"Right: "+(String)right_distance);
+// Serial.println("Esquerda: "+(String)left_distance+"  Center: "+(String)front_distance+"  Right: "+(String)right_distance);
 
 
 //   if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
@@ -198,12 +144,17 @@ void loop() {
 
 //  // Navegação natural seguindo a parede esquerda
 
-// if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
-  
-//   float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(1300)+50,100,-4);
-//   float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(1300)+50,-14,98);
-//   bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
-// }
+//   if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
+    
+//     float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(1300)+50,100,-4);
+//     float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(1300)+50,-14,98);
+//     bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
+//   }
+
+
 bot.moveMotors(10,10);
 delay(40);
+
+
+
 }
