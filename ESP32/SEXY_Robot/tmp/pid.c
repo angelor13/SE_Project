@@ -14,6 +14,10 @@ float constrain(float x, float min, float max) {
 	}
 }
 
+float lerp(a, b, t) {
+    return (b - a) * t;
+}
+
 float PID_Control(float Kp, float Ki, float Kd, float setpoint, float value) {
     static float error_integral = 0.0;
     static float error_previous = 0.0;
@@ -32,8 +36,8 @@ float PID_Control(float Kp, float Ki, float Kd, float setpoint, float value) {
     float P = Kp * error;
 
     // Integral term
-    error_integral = constrain(error_integral + error, -ERROR_INTEGRAL_MAX, ERROR_INTEGRAL_MAX);
-    float I = Ki * error_integral * dt;
+    error_integral = error_integral + error;
+    float I = constrain(Ki * error_integral * dt, -ERROR_INTEGRAL_MAX, ERROR_INTEGRAL_MAX);
 
     // Derivative term
     float D = Kd * (error - error_previous) / dt;
@@ -41,6 +45,8 @@ float PID_Control(float Kp, float Ki, float Kd, float setpoint, float value) {
 
     // PID Output
     float output = constrain(P + I + D, -PID_OUTPUT_MAX, PID_OUTPUT_MAX);
+
+    
 
     return output;
 }
@@ -65,6 +71,11 @@ int main() {
 
     for (; x < 300; x++) {
         y = .01 * PID_Control(20, 900, 0.10, -90, y);
+        printf("%f\n", y);
+        fprintf(gnuplot, "%g %g\n", x, y);
+    }
+    for (; x < 400; x++) {
+        y = .01 * PID_Control(20, 900, 0.10, 0, y);
         printf("%f\n", y);
         fprintf(gnuplot, "%g %g\n", x, y);
     }
