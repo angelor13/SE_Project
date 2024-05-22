@@ -9,6 +9,15 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
   return (vx - vin_min) * (vout_max - vout_min) / (vin_max - vin_min) + vout_min;
 }
 
+void rotate_90_Stationary(){
+  bot.moveMotors(0,0);
+  delay(100);
+  bot.moveMotors(100,-100);
+  delay(225);
+  bot.moveMotors(0,0);
+  delay(100);
+}
+
 
 float leftW,rightW;
 
@@ -96,6 +105,32 @@ void loop() {
 
 // Serial.println("Esquerda: "+(String)left_distance+"  Center: "+(String)front_distance+"  Right: "+(String)right_distance);
 
+if(left_distance<=40 && front_distance<=60){
+  bot.moveMotors(0,0);
+  delay(200);
+  bot.moveMotors(-50,-50);
+  delay(50);
+  bot.moveMotors(0,0);
+  delay(200);
+  rotate_90_Stationary();
+  delay(200);
+  bot.moveMotors(0,0);
+  delay(200);
+}
+if(right_distance<=40 && front_distance<=60){
+  bot.moveMotors(0,0);
+  delay(200);
+  bot.moveMotors(-50,-50);
+  delay(50);
+  bot.moveMotors(0,0);
+  delay(200);
+  for(int i=0;i<3;i++){
+  rotate_90_Stationary();
+  delay(200);
+  bot.moveMotors(0,0);
+  delay(200);
+  }
+}
 
 //   if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
 
