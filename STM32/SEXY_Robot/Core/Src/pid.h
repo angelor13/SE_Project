@@ -5,15 +5,16 @@
 #define ERROR_INTEGRAL_MAX 10000
 #define PID_OUTPUT_MAX 65535
 
-//float constrain(float x, float min, float max) {
-//	if (x < min) {
-//		return min;
-//	} else if (x > max) {
-//		return max;
-//	} else {
-//		return x;
-//	}
-//}
+float constrain(float x, float min, float max) {
+	if (x < min) {
+		return min;
+	} else if (x > max) {
+		return max;
+	} else {
+		return x;
+	}
+}
+
 static inline float GetMicros() {
     uint32_t ms;
     uint32_t st;

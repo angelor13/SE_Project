@@ -67,8 +67,8 @@ all: main-build
 main-build: STM32_SHIT.elf secondary-outputs
 
 # Tool invocations
-STM32_SHIT.elf STM32_SHIT.map: $(OBJS) $(USER_OBJS) /home/william/Development/SE/STM32/SEXY_Robot/STM32F411CEUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STM32_SHIT.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/william/Development/SE/STM32/SEXY_Robot/STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_SHIT.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM32_SHIT.elf STM32_SHIT.map: $(OBJS) $(USER_OBJS) C:\Users\angel\OneDrive\Documentos\GitHub\SE_Project\STM32\SEXY_Robot\STM32F411CEUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "STM32_SHIT.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\angel\OneDrive\Documentos\GitHub\SE_Project\STM32\SEXY_Robot\STM32F411CEUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_SHIT.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

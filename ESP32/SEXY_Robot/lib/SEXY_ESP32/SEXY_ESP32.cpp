@@ -20,13 +20,13 @@ Adafruit_ADS1115 SEXY_ESP32::gasADC;
 byte SEXY_ESP32::RxBuffer[4];
 byte SEXY_ESP32::TxBuffer[4];
 
-float SEXY_ESP32::R=0.5;
-float SEXY_ESP32::L=0.12;
-float SEXY_ESP32::r=0.03;
+float SEXY_ESP32::R=0.2;
+float SEXY_ESP32::L=0.1605;
+float SEXY_ESP32::r=0.0455/2;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
-float SEXY_ESP32::vx=0;
-float SEXY_ESP32::w=0;
+float SEXY_ESP32::vx=1;
+float SEXY_ESP32::w=vx/R;
 float SEXY_ESP32::PercentL=0,PercentR=0;
 bool SEXY_ESP32::curving=false;
 uint8_t SEXY_ESP32::currentDirection=FRONT;
@@ -60,7 +60,7 @@ void SEXY_ESP32::setupMotors() {
  * @brief Initialize the Lidar front
  */
 void SEXY_ESP32::setupLidar() {
-	Wire.begin();
+	Wire.begin(PIN_SDA_FRONT,PIN_SCL_FRONT);
 
 	// LiDAR
 	pinMode(PIN_XSHUT_FRONT, OUTPUT);
@@ -109,29 +109,28 @@ void SEXY_ESP32::setupSPI(){
 /**
  * @brief Initialize the ADC
  */
-void SEXY_ESP32::setupADC(){
-gasADC.begin(ADDR_ADC);
-}
-/**
- * @brief Initialize the RFID.
- */
-void SEXY_ESP32::setupRFID() {
-  //SPI.begin();
-  RFID_device.PCD_Init();
-}
+// void SEXY_ESP32::setupADC(){
+// gasADC.begin(ADDR_ADC);
+// }
+// /**
+//  * @brief Initialize the RFID.
+//  */
+// void SEXY_ESP32::setupRFID() {
+//   //SPI.begin();
+//   RFID_device.PCD_Init();
+// }
 
  /**
  * @brief Initialize the hardware interface. Must be called to interact with robot.
  */
 void SEXY_ESP32::begin() {
-	//setupMotors();
-	setupADC();
+	//setupADC();
 	setupSharps();
-	// setupLidar();
-	setupRFID();
+	setupLidar();
+	//setupRFID();
 	setupSPI();
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
-	//xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
+	xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
 }
 /**
@@ -174,7 +173,7 @@ void SEXY_ESP32::stopMotors(){
  */
 uint16_t SEXY_ESP32::getLeftDistance(){
   uint16_t value=analogRead(PIN_VP_LEFT);
-  return constrain(map(value,0,4095,100,800),100,800);
+  return constrain(map(value,0,4095,800,100),100,800);
 }
 /**
  * @brief Get the front LiDAR distance value, in millimeters.
@@ -191,7 +190,7 @@ uint16_t SEXY_ESP32::getFrontDistance() {
  */
 uint16_t SEXY_ESP32::getRightDistance(){
   uint16_t value=analogRead(PIN_VP_RIGHT);
-  return constrain(map(value,0,4095,100,800),100,800);
+  return constrain(map(value,0,4095,800,100),100,800);
 }
 
 uint16_t SEXY_ESP32::getADCvalue(){
@@ -317,8 +316,8 @@ vec2 SEXY_ESP32::getMotorVelocity() {
     const int pulse_n_per_rot=1470;
 
     digitalWrite(VSPI_SS, 0);
-    SPI.transfer(0xAB);
-    SPI.transfer(0xCD);
+    SPI.write(0xAB);
+    SPI.write(0xCD);
     SPI.transfer(rxdata, sizeof(rxdata));
     digitalWrite(VSPI_SS, 1);
 
@@ -340,23 +339,22 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     float left_omega = left_velocity / raio;
 	float righ_omega = right_velocity / raio;
 
-    float dptL = (left_omega * pulse_n_per_rot) / (2*PI);
-	float dptR = (righ_omega * pulse_n_per_rot) / (2*PI);
+    float dptL = constrain((left_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
+	float dptR = constrain((righ_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
 
     int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
-	//Serial.println(dptL);
+	Serial.println(dptL);
+	Serial.println(dptR);
 
     digitalWrite(VSPI_SS, 0);
-    SPI.transfer(0xDE);
-    SPI.transfer(0xAD);
+    SPI.write(0xDE);
+    SPI.write(0xAD);
     SPI.transfer(txdata, sizeof(txdata));
     digitalWrite(VSPI_SS, 1);
 }
 
-
-
 void SEXY_ESP32::taskReceiveSPICom(void*){
-  while(1){
+  while(1){	
 	vec2 buffer;
 	//Serial.println("Data Transmition");
 	//RFID_device.PCD_AntennaOff();
@@ -368,6 +366,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	dotphiL=(float)buffer.x;	
 	dotphiR=(float)buffer.y;
+	w=calculatedW(dotphiR,dotphiL,R,r);
 
 	//Serial.println("Data Transmition");
 
@@ -376,57 +375,65 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 
 	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
 	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
-	previous_millis=current_millis;
+	
 
 
 	//--------------------- ODOMETRIA ----------------------------------
 
-	if(!getCurvingState()){
-		if(currentDirection==FRONT){
-			//robot_pos.x+=align;
-			robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			robot_pos.phi=PI/2;
-			robot_pos.vetor[0]=0;
-			robot_pos.vetor[1]=1;
-		}
-		else if (currentDirection==LEFT){
-			robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			//robot_pos.y-=align;
-			robot_pos.phi=PI;
-			robot_pos.vetor[0]=-1;
-			robot_pos.vetor[1]=0;
-		}
-		else if (currentDirection==RIGHT){
-			robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			//robot_pos.y-=align;
-			robot_pos.phi=0;
-			robot_pos.vetor[0]=1;
-			robot_pos.vetor[1]=0;
-		}
-		else{
-			//robot_pos.x+=align;
-			robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-			robot_pos.phi=-PI/2;
-			robot_pos.vetor[0]=0;
-			robot_pos.vetor[1]=-1;
-		}
-	}
-	else{	// Aquando a curva
+	// if(!getCurvingState()){
+	// 	if(currentDirection==FRONT){
+	// 		//robot_pos.x+=align;
+	// 		robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		robot_pos.phi=PI/2;
+	// 		robot_pos.vetor[0]=0;
+	// 		robot_pos.vetor[1]=1;
+	// 	}
+	// 	else if (currentDirection==LEFT){
+	// 		robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		//robot_pos.y-=align;
+	// 		robot_pos.phi=PI;
+	// 		robot_pos.vetor[0]=-1;
+	// 		robot_pos.vetor[1]=0;
+	// 	}
+	// 	else if (currentDirection==RIGHT){
+	// 		robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		//robot_pos.y-=align;
+	// 		robot_pos.phi=0;
+	// 		robot_pos.vetor[0]=1;
+	// 		robot_pos.vetor[1]=0;
+	// 	}
+	// 	else{
+	// 		//robot_pos.x+=align;
+	// 		robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
+	// 		robot_pos.phi=-PI/2;
+	// 		robot_pos.vetor[0]=0;
+	// 		robot_pos.vetor[1]=-1;
+	// 	}
+	// }
+	// else{	// Aquando a curva
 		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-		float raio=R;	
-		float delta_phi = (delta_d*2*PI)/(2*PI*R);
+		float raio=R;
+		float delta_phi=w*(current_millis-previous_millis);	
+		//float delta_phi = (delta_d*2*PI)/(2*PI*R);
 		robot_pos.x += delta_d * cos(robot_pos.phi + delta_phi/2);
 		robot_pos.y += delta_d * sin(robot_pos.phi + delta_phi/2);
-		robot_pos.phi+= delta_phi;
-	}
+		//robot_pos.phi+= delta_phi;
+		
+		robot_pos.phi+=delta_phi; 	// another way to program or maybe the best way
+		
+	//}
 	previous_distanceMotorL=distanceMotorL;
 	previous_distanceMotorR=distanceMotorR;
+
+	previous_millis=current_millis;
+
 	delay(500);
   }
 }
 
 
 // NOt to use
+
 
 // void SEXY_ESP32::transmitSPIcom(){
 // 	//RFID_device.PCD_AntennaOff();
