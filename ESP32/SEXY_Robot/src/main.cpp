@@ -23,46 +23,11 @@ float leftW,rightW;
 
 void curve90Circule(float vx,float R, float phi){
   bot.R=R;
-  bot.changeCurvingState();
-  switch (bot.currentDirection)
-  {
-  case bot.FRONT:
-      bot.currentDirection=bot.LEFT;
-      break;
-  case bot.LEFT:
-      bot.currentDirection=bot.BACK;
-      break;
-  case bot.BACK:
-      bot.currentDirection=bot.RIGHT;
-      break;
-  case bot.RIGHT:
-      bot.currentDirection=bot.FRONT;
-      break;
-  default:
-      break;
-  }
   float w=vx/R;
   leftW=float_map(bot.calculatedDotphiL(vx,w,bot.L,bot.getDotphiL()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
   rightW=float_map(bot.calculatedDotphiR(vx,w,bot.L,bot.getDotphiR()),-bot.MAX_Vx,bot.MAX_Vx,-100,100);
 
   if(vx<0){
-switch (bot.currentDirection)
-{
-case bot.FRONT:
-    bot.currentDirection=bot.RIGHT;
-    break;
-case bot.LEFT:
-    bot.currentDirection=bot.FRONT;
-    break;
-case bot.BACK:
-    bot.currentDirection=bot.LEFT;
-    break;
-case bot.RIGHT:
-    bot.currentDirection=bot.BACK;
-    break;
-default:
-    break;
-}
     float aux=-leftW;
     leftW=-rightW;
     rightW=aux;
@@ -81,7 +46,7 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
   bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 
  }
- bot.changeCurvingState();
+ //bot.changeCurvingState();
 }
 
 void setup(){
@@ -105,32 +70,32 @@ void loop() {
 
 // Serial.println("Esquerda: "+(String)left_distance+"  Center: "+(String)front_distance+"  Right: "+(String)right_distance);
 
-if(left_distance<=40 && front_distance<=60){
-  bot.moveMotors(0,0);
-  delay(200);
-  bot.moveMotors(-50,-50);
-  delay(50);
-  bot.moveMotors(0,0);
-  delay(200);
-  rotate_90_Stationary();
-  delay(200);
-  bot.moveMotors(0,0);
-  delay(200);
-}
-if(right_distance<=40 && front_distance<=60){
-  bot.moveMotors(0,0);
-  delay(200);
-  bot.moveMotors(-50,-50);
-  delay(50);
-  bot.moveMotors(0,0);
-  delay(200);
-  for(int i=0;i<3;i++){
-  rotate_90_Stationary();
-  delay(200);
-  bot.moveMotors(0,0);
-  delay(200);
-  }
-}
+// if(left_distance<=40 && front_distance<=60){
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   bot.moveMotors(-50,-50);
+//   delay(50);
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   rotate_90_Stationary();
+//   delay(200);
+//   bot.moveMotors(0,0);
+//   delay(200);
+// }
+// if(right_distance<=40 && front_distance<=60){
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   bot.moveMotors(-50,-50);
+//   delay(50);
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   for(int i=0;i<3;i++){
+//   rotate_90_Stationary();
+//   delay(200);
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   }
+// }
 
 //   if(left_distance>=400 && front_distance<=950){  //Deteta aberturas com lidars
 
