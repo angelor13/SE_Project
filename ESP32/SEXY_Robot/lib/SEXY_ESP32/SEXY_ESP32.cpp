@@ -100,10 +100,11 @@ void SEXY_ESP32::setupSharps(){
  * @brief Initialize the SPI
  */
 void SEXY_ESP32::setupSPI(){
+	pinMode(VSPI_SS,OUTPUT);
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi,VSPI_SS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
-  SPI.setFrequency(100000);
+  SPI.setFrequency(10000);
 }
 
 /**
@@ -343,8 +344,8 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 	float dptR = constrain((righ_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
 
     int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
-	Serial.println(dptL);
-	Serial.println(dptR);
+	Serial.println(txdata[0]);
+	Serial.println(txdata[1]);
 
     digitalWrite(VSPI_SS, 0);
     SPI.write(0xDE);
@@ -373,44 +374,13 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 	Serial.println("dotphiL:  "+(String)dotphiL);
 	Serial.println("dotphiR:  "+(String)dotphiR);
 
-	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
-	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
+	distanceMotorL+=2*PI*dotphiL*(current_millis-previous_millis)/1000;
+	distanceMotorR+=2*PI*dotphiR*(current_millis-previous_millis)/1000;
 	
 
 
-	//--------------------- ODOMETRIA ----------------------------------
-
-	// if(!getCurvingState()){
-	// 	if(currentDirection==FRONT){
-	// 		//robot_pos.x+=align;
-	// 		robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		robot_pos.phi=PI/2;
-	// 		robot_pos.vetor[0]=0;
-	// 		robot_pos.vetor[1]=1;
-	// 	}
-	// 	else if (currentDirection==LEFT){
-	// 		robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		//robot_pos.y-=align;
-	// 		robot_pos.phi=PI;
-	// 		robot_pos.vetor[0]=-1;
-	// 		robot_pos.vetor[1]=0;
-	// 	}
-	// 	else if (currentDirection==RIGHT){
-	// 		robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		//robot_pos.y-=align;
-	// 		robot_pos.phi=0;
-	// 		robot_pos.vetor[0]=1;
-	// 		robot_pos.vetor[1]=0;
-	// 	}
-	// 	else{
-	// 		//robot_pos.x+=align;
-	// 		robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		robot_pos.phi=-PI/2;
-	// 		robot_pos.vetor[0]=0;
-	// 		robot_pos.vetor[1]=-1;
-	// 	}
-	// }
-	// else{	// Aquando a curva
+	//--------------------- ODOMETRIA ------------------------------------------
+	
 		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 		float raio=R;
 		float delta_phi=w*(current_millis-previous_millis);	
@@ -421,7 +391,7 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 		
 		robot_pos.phi+=delta_phi; 	// another way to program or maybe the best way
 		
-	//}
+
 	previous_distanceMotorL=distanceMotorL;
 	previous_distanceMotorR=distanceMotorR;
 

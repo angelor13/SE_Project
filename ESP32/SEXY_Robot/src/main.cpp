@@ -46,7 +46,6 @@ bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
   bot.align=(start_Ldistance*sin(PI/4)+start_Rdistance*sin(PI/4))/2;
 
  }
- //bot.changeCurvingState();
 }
 
 void setup(){
@@ -134,7 +133,7 @@ void loop() {
 //   left_distance=bot.getLeftDistance();
 //   front_distance=bot.getFrontDistance();
 //   right_distance=bot.getRightDistance();
-//   if(left_distance<=40){
+//   if(right_distance<=40){
 //     break;
 //   }
 //   }
@@ -152,8 +151,8 @@ void loop() {
 //   }
 
 
-bot.moveMotors(10,10);
-delay(40);
+  bot.moveMotors(10,10);
+  delay(10);
 
 
 

@@ -45,7 +45,7 @@ private:                        // Index Map:
 
     // RFID pins
     static constexpr uint8_t RST_PIN = INT8_MAX;   
-    static constexpr uint8_t PIN_RFID_SDA=5;       // pin 4 in robot to use?
+    static constexpr uint8_t PIN_RFID_SDA=4;       // pin 4 in robot to use?
     static constexpr uint8_t PIN_RFID_SCK=18;
     static constexpr uint8_t PIN_RFID_MISO=19;
     static constexpr uint8_t PIN_RFID_MOSI=23;
@@ -161,7 +161,7 @@ public:
 
     static uint32_t align;
     
-    static constexpr float MAX_Vx=8.4;
+    static constexpr float MAX_Vx=6.5535;
 
     static const uint8_t FRONT=0;
     static const uint8_t BACK=1;
