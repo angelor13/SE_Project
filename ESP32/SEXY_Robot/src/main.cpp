@@ -20,6 +20,7 @@ void rotate_90_Stationary(){
 
 
 float leftW,rightW;
+float last_align=0;
 
 void curve90Circule(float vx,float R, float phi){
   bot.R=R;
@@ -62,12 +63,69 @@ byte tx=10;
 void loop() {
 
 
-// uint32_t left_distance=bot.getLeftDistance();
-// uint32_t front_distance=bot.getFrontDistance();
-// uint32_t right_distance=bot.getRightDistance();
-// bot.align=(left_distance*sin(PI/4)+right_distance*sin(PI/4))/2;
+uint32_t left_distance=bot.getLeftDistance();
+uint32_t front_distance=bot.getFrontDistance();
+uint32_t right_distance=bot.getRightDistance();
+bot.align=(left_distance*sin(PI/4)+right_distance*sin(PI/4))/2;
 
 // Serial.println("Esquerda: "+(String)left_distance+"  Center: "+(String)front_distance+"  Right: "+(String)right_distance);
+
+// if((left_distance<=40 && front_distance<=65)){
+//     while(left_distance<=40 && front_distance<=65){
+//     left_distance=bot.getLeftDistance();
+//     front_distance=bot.getFrontDistance();
+//     right_distance=bot.getRightDistance();
+
+//     bot.moveMotors(-255,-255);
+//     //delay(50);
+//   }
+//     bot.moveMotors(0,0);
+//     delay(100);
+
+//   rotate_90_Stationary();
+//   delay(200);
+//   bot.moveMotors(0,0);
+//   delay(200);
+// }
+// else if((right_distance<=40 && front_distance<=65) || right_distance<=30){
+//     while(right_distance<=40 && front_distance<=65){
+//     left_distance=bot.getLeftDistance();
+//     front_distance=bot.getFrontDistance();
+//     right_distance=bot.getRightDistance();
+
+//     bot.moveMotors(-255,-255);
+//     // delay(50);
+//   }
+//     bot.moveMotors(0,0);
+//     delay(100);
+
+//   for(int i=0;i<3;i++){
+//   rotate_90_Stationary();
+//   delay(200);
+//   bot.moveMotors(0,0);
+//   delay(200);
+//   }
+// }
+// else if(front_distance<=65){
+//   while(front_distance<=65){
+//     left_distance=bot.getLeftDistance();
+//     front_distance=bot.getFrontDistance();
+//     right_distance=bot.getRightDistance();
+
+//     bot.moveMotors(-255,-255);
+//     // delay(50);
+//   }
+//     bot.moveMotors(0,0);
+//     delay(100);
+//   //   Bot.moveMotors(0,0);
+//   //   delay(500);
+//   rotate_90_Stationary();
+//   delay(200);
+//   bot.moveMotors(0,0);
+//   delay(200);
+
+// }
+
 
 // if(left_distance<=40 && front_distance<=60){
 //   bot.moveMotors(0,0);
@@ -100,7 +158,7 @@ void loop() {
 
 //   bot.moveMotors(0,0);
 //   delay(200);
-//   curve90Circule(bot.vx,0.25,PI/4);  // faz a curva no sentido anti-horário
+//   curve90Circule(bot.vx,last_align,PI/4);  // faz a curva no sentido anti-horário
 //   long start=millis();
 
 //   while(left_distance>=bot.align+limiar || right_distance<=bot.align-limiar|| millis()-start<=800){ // Faz a curva enquanto as seguintes condições
@@ -126,7 +184,7 @@ void loop() {
 //   int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
 //   bot.moveMotors(0,0);
 //   delay(200);
-//   curve90Circule(-bot.vx,0.2,PI/4);  // faz a curva no sentido anti-horário
+//   curve90Circule(-bot.vx,last_align,PI/4);  // faz a curva no sentido anti-horário
 //   long start=millis();
 //   while(left_distance>=bot.align+limiar || right_distance>=bot.align-limiar||  millis()-start<=900){
 //     // Volta a ler distâncias
@@ -143,17 +201,20 @@ void loop() {
 
 //  // Navegação natural seguindo a parede esquerda
 
-//   if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
-    
-//     float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(1300)+50,100,-4);
-//     float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(1300)+50,-14,98);
-//     bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
-//   }
+  // if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
+  //    last_align=(float)bot.align/1000;
+  //   float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(1300)+50,100,-4);
+  //   float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(1300)+50,-14,98);
+  //   bot.moveMotors(2.3*left_velocity,0.8*right_velocity);
+  // }
 
 
-  bot.moveMotors(10,10);
+  // bot.moveMotors(90,90);
+  for(int i=0;i<=100;i++){
+    bot.moveMotors(i,i);
+    delay(10);
+  }
   delay(10);
-
-
+  
 
 }
