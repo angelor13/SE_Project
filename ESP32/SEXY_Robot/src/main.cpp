@@ -2,21 +2,7 @@
 #include "vec2.hpp"
 #include <WebServer.h>
 
-
 #define limiar 2
-
-void handleSwitchMode() {
-    String mode = server.hasArg("m") ? server.arg("m") : "0";
-
-    if (mode == "0") {
-        // AUTO
-        Serial.println("AUTO");
-    } else { 
-        // MANUAL
-        Serial.println("MANUAL");
-    }
-    server.send(200, "text/plain", "OK");
-}
 
 SEXY_ESP32 bot;
           

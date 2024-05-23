@@ -1,3 +1,6 @@
+#ifndef SERVER_X_H
+#define SERVER_X_H
+
 #include <WiFi.h>
 #include <WebServer.h>
 
@@ -149,15 +152,12 @@ const char HTML[] = R"(
 </html>
 )";
 
-// Replace with your network credentials
-const char* ssid = "jesus";
-const char* password = "opeixedotobias1";
-
-WebServer server(80); 
+static WebServer server(80); 
 
 void handleRoot();
 void handleCSS();
 void handleSwitchMode();
 void handleCommand();
 void handleNotFound();
-void taskServer();
+
+#endif

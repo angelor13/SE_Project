@@ -104,9 +104,8 @@ private:                        // Index Map:
 
     // WIFI constants
 
-    static constexpr char ssid[]="";
-    static constexpr char password[]="";
-
+    static char* ssid;
+    static char* password;
 
     static bool isTagDetected;
 
@@ -131,8 +130,7 @@ private:                        // Index Map:
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
     static void taskGetPointCloud(void*);
-
-    
+    static void taskServer(void*);   
 
 
     // Internal variables

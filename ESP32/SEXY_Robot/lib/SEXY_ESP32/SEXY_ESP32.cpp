@@ -1,5 +1,9 @@
 #include "SEXY_ESP32.h"
 
+char* SEXY_ESP32::ssid = "jesus";
+char* SEXY_ESP32::password = "opeixedotobias1";
+
+
 // Static defines
 bool SEXY_ESP32::isTagDetected=false;
 
@@ -78,15 +82,15 @@ void SEXY_ESP32::setupLidar() {
  * @brief Initialize Wifi
  */
 void SEXY_ESP32::setupWifi(){
-  WiFi.mode(WIFI_STA);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
-  while (WiFi.status() != WL_CONNECTED) {
-	Serial.print('.');
-	delay(1000);
-  }
-  Serial.println(WiFi.localIP());
+//   WiFi.mode(WIFI_STA);
+//   WiFi.mode(WIFI_STA);
+//   WiFi.begin(ssid, password);
+//   Serial.print("Connecting to WiFi ..");
+//   while (WiFi.status() != WL_CONNECTED) {
+// 	Serial.print('.');
+// 	delay(1000);
+//   }
+//   Serial.println(WiFi.localIP());
 }
 
 /**
@@ -354,6 +358,38 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     SPI.write(0xAD);
     SPI.transfer(txdata, sizeof(txdata));
     digitalWrite(VSPI_SS, 1);
+}
+
+void SEXY_ESP32::taskServer(void*) {
+    Serial.begin(115200);
+
+    // Connect to Wi-Fi
+    WiFi.begin(ssid, password);
+    Serial.print("Connecting to WiFi");
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(1000);
+        Serial.print(".");
+    }
+    Serial.println(" connected");
+
+    // Start the web server
+    server.on("/", handleRoot);
+    server.on("/style.css", handleCSS);
+    server.on("/control", handleCommand);
+    server.on("/mode", handleSwitchMode);
+    server.onNotFound(handleNotFound);
+
+    server.begin();
+    server.enableCrossOrigin();
+    Serial.println("HTTP server started");
+
+    // Print the IP address
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+
+    while (1) {
+        server.handleClient();
+    }
 }
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
