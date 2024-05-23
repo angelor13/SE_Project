@@ -12,6 +12,8 @@
 #include <WiFi.h>
 #include <vector>
 #include <vec2.hpp>
+#include "server.h"
+
 
 //#include <WiFiUdp.h>
 
@@ -123,7 +125,7 @@ private:                        // Index Map:
     static TaskHandle_t taskReceiveSPiComHandle;
     static TaskHandle_t taskGetPointCloudHandle;
     static TaskHandle_t taskUpdatePositionHandle;
-
+    static TaskHandle_t taskServerHandle;
 
     // TaskFunctions_t
     static void taskReadRFID(void*);
@@ -156,12 +158,12 @@ public:
     // Robot Atributes
     static float L,r,dotphiL,dotphiR,vx,w,R;
 
-    static constexpr float MAXPERCENT=100;
+    static constexpr float MAXPERCENT=100.0;
     static float PercentL,PercentR;
 
     static uint32_t align;
     
-    static constexpr float MAX_Vx=6.5535;
+    static constexpr float MAX_Vx=40.0;
 
     static const uint8_t FRONT=0;
     static const uint8_t BACK=1;
