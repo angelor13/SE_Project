@@ -6,6 +6,7 @@ bool SEXY_ESP32::isTagDetected=false;
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
 TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
 TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
+TaskHandle_t SEXY_ESP32::taskServerHandle;
 
 std::vector<vec2> SEXY_ESP32::mapPointCloud;
 
@@ -25,7 +26,7 @@ float SEXY_ESP32::L=0.1605;
 float SEXY_ESP32::r=0.0455/2;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
-float SEXY_ESP32::vx=1;
+float SEXY_ESP32::vx=MAX_Vx*r;
 float SEXY_ESP32::w=vx/R;
 float SEXY_ESP32::PercentL=0,PercentR=0;
 bool SEXY_ESP32::curving=false;
@@ -133,6 +134,7 @@ void SEXY_ESP32::begin() {
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
 	xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
+	xTaskCreatePinnedToCore(taskServer, "TASK_Server", 2000, nullptr, 1, &taskServerHandle, 0);
 }
 /**
   @brief Control left motor speed.
