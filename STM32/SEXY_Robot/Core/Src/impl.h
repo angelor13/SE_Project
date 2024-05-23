@@ -11,11 +11,7 @@
 //#include "pid.h"
 
 extern SPI_HandleTypeDef hspi1;
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim5;
 
-int32_t delta_left = 0;
-int32_t delta_right = 0;
 
 #define PID_OUTPUT_MAX 65535
 #define ERROR_INTEGRAL_MAX 10000
@@ -121,8 +117,9 @@ float PID_Control_R(float Kp, float Ki, float Kd, float setpoint, float value) {
 int32_t getMotorDeltaLeft() {
 	static int32_t last_pulse = 0;
 	static int32_t last_tick = 0;
+	static int32_t delta_left = 0;
 
-	int32_t current_pulse = htim1.Instance->CNT;
+	int32_t current_pulse = TIM1->CNT;
 	int32_t current_tick = HAL_GetTick();
 
 	int32_t delta_pulse = current_pulse - last_pulse;
@@ -140,8 +137,9 @@ int32_t getMotorDeltaLeft() {
 int32_t getMotorDeltaRight() {
 	static int32_t last_pulse = 0;
 	static int32_t last_tick = 0;
+	static int32_t delta_right = 0;
 
-	int32_t current_pulse = htim5.Instance->CNT;
+	int32_t current_pulse = TIM5->CNT;
 	int32_t current_tick = HAL_GetTick();
 
 	int32_t delta_pulse = current_pulse - last_pulse;
@@ -157,76 +155,38 @@ int32_t getMotorDeltaRight() {
 }
 
 void setMotorDeltaLeft(int32_t target) {
-	static float offset = 0;
 	static uint32_t last_tick = 0;
-	float pid = PID_Control_L(20, 10, 0, target, delta_left);
 	uint32_t tick = GetMicros();
 
-	offset = constrain(offset, -65535, 65535);
-
-	xprintf("PWM:%d\nORIGIN:%d\nTARGET:%d\n", (int32_t) pid, (int32_t) delta_left, (int32_t) target);
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+	float pid = constrain(target, -PID_OUTPUT_MAX, PID_OUTPUT_MAX);
 
 	if (target < 0) {
-		if (delta_left == 0 && tick - last_tick > 500) {
-			last_tick = tick;
-			offset-=10;
-		}
-
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET); // 5, 6, 7, 15
-		TIM2->CCR1 = abs(offset + pid);
-	} else if (target > 0) {
-		if (delta_left == 0 && tick - last_tick > 500) {
-			last_tick = tick;
-			offset+=10;
-		}
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET); // 5, 6, 7, 15
-		TIM2->CCR1 = PID_OUTPUT_MAX - abs(offset + pid);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
+		TIM4->CCR3 = abs(pid);
 	} else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET); // 5, 6, 7, 15
-		TIM2->CCR1 = 65535;
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET); // 5, 6, 7, 15
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
+		TIM4->CCR3 = abs(pid);
 	}
-//	xprintf("TM: %d\n", pid);
 }
 
 
 void setMotorDeltaRight(int32_t target) {
-	static float offset = 0;
 	static uint32_t last_tick = 0;
-	float pid = PID_Control_R(20, 10, 0, target, delta_right);
 	uint32_t tick = GetMicros();
 
-	offset = constrain(offset, -65535, 65535);
+	float pid = constrain(target, -PID_OUTPUT_MAX, PID_OUTPUT_MAX);
 
-	xprintf("PWM:%d\nORIGIN:%d\nTARGET:%d\n", (int32_t) pid, (int32_t) delta_right, (int32_t) target);
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
-
-	if (target < 0) {
-		if (delta_left == 0 && tick - last_tick > 500) {
-			last_tick = tick;
-			offset-=10;
-		}
-
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET); // 5, 6, 7, 15
-		TIM2->CCR1 = abs(offset + pid);
-	} else if (target > 0) {
-		if (delta_left == 0 && tick - last_tick > 500) {
-			last_tick = tick;
-			offset+=10;
-		}
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, gpio_pin_set);
-		hal_gpio_writepin(gpiob, gpio_pin_6, gpio_pin_reset); // 5, 6, 7, 15
-		TIM2->CCR1 = PID_OUTPUT_MAX - abs(offset + pid);
+	if (target > 0) {
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+		TIM4->CCR4 = abs(pid);
 	} else {
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET); // 5, 6, 7, 15
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-		TIM2->CCR1 = 65535;
+		TIM4->CCR4 = abs(pid);
 	}
-//	xprintf("TM: %d\n", pid);
 }
 
 #endif

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .coordinate-display, .mode-selection, .start-stop-buttons {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="coordinate-display">
+        <p>X: <span id="x-coordinate">0</span></p>
+        <p>Y: <span id="y-coordinate">0</span></p>
+    </div>
+
+    <div class="start-stop-buttons">
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>
+    </div>
+
+    <div class="mode-selection">
+        <label>
+            <input type="radio" name="mode" value="manual" checked> Manual
+        </label>
+        <label>
+            <input type="radio" name="mode" value="automatic"> Automatic
+        </label>
+    </div>
+
+    <div class="controls">
+        <button id="up-button">Forward</button>
+        <div>
+            <button id="left-button">Left</button>
+            <button id="right-button">Right</button>
+        </div>
+        <button id="down-button">Back</button>
+    </div>
+
+    <script>
+        // JavaScript to handle button clicks and update coordinates
+        let x = 0;
+        let y = 0;
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            console.log('Start button clicked');
+            // Add start logic here
+        });
+
+        document.getElementById('stop-button').addEventListener('click', () => {
+            console.log('Stop button clicked');
+            // Add stop logic here
+        });
+
+        document.querySelectorAll('input[name="mode"]').forEach((elem) => {
+            elem.addEventListener('change', (event) => {
+                console.log(`Mode changed to: ${event.target.value}`);
+                // Add mode change logic here
+            });
+        });
+
+        document.getElementById('up-button').addEventListener('click', () => {
+            y++;
+            updateCoordinates();
+        });
+
+        document.getElementById('down-button').addEventListener('click', () => {
+            y--;
+            updateCoordinates();
+        });
+
+        document.getElementById('left-button').addEventListener('click', () => {
+            x--;
+            updateCoordinates();
+        });
+
+        document.getElementById('right-button').addEventListener('click', () => {
+            x++;
+            updateCoordinates();
+        });
+
+        function updateCoordinates() {
+            document.getElementById('x-coordinate').textContent = x;
+            document.getElementById('y-coordinate').textContent = y;
+        }
+    </script>
+
+</body>
+</html>

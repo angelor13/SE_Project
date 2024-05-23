@@ -3,6 +3,19 @@
 
 #define limiar 2
 
+void handleSwitchMode() {
+    String mode = server.hasArg("m") ? server.arg("m") : "0";
+
+    if (mode == "0") {
+        // AUTO
+        Serial.println("AUTO");
+    } else { 
+        // MANUAL
+        Serial.println("MANUAL");
+    }
+    server.send(200, "text/plain", "OK");
+}
+
 SEXY_ESP32 bot;
           
 float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  vout_max) {
