@@ -15,18 +15,18 @@ float float_map(float vx, float vin_min, float vin_max, float  vout_min, float  
 
 uint8_t current_mode=Automatic;
 
-void handleSwitchMode() {
-    String mode = server.hasArg("m") ? server.arg("m") : "0";
+// void handleSwitchMode() {
+//     String mode = server.hasArg("m") ? server.arg("m") : "0";
 
-    if (mode == "0") {
-        // AUTO
-        Serial.println("AUTO");
-    } else { 
-        // MANUAL
-        Serial.println("MANUAL");
-    }
-    server.send(200, "text/plain", "OK");
-}
+//     if (mode == "0") {
+//         // AUTO
+//         Serial.println("AUTO");
+//     } else { 
+//         // MANUAL
+//         Serial.println("MANUAL");
+//     }
+//     server.send(200, "text/plain", "OK");
+// }
 
 
 void rotate_90_Stationary(){
@@ -80,14 +80,9 @@ void setup(){
   bot.begin();  
 }
 
-byte rx[4];
-byte tx=10;
-
-
-
 void loop() {
 
-if(current_mode==Automatic){
+// if(current_mode==Automatic){
 uint32_t left_distance=bot.getLeftDistance();
 uint32_t front_distance=bot.getFrontDistance();
 uint32_t right_distance=bot.getRightDistance();
@@ -181,8 +176,7 @@ if(right_distance<=40 && front_distance<=60){
 
 
 
-  if(left_distance>=700 && front_distance<=450){  //Deteta aberturas com lidars
-
+if(left_distance>=650 && front_distance<=450){  //Deteta aberturas com lidars
   bot.moveMotors(0,0);
   delay(500);
   bot.moveMotors(10,10);
@@ -190,21 +184,20 @@ if(right_distance<=40 && front_distance<=60){
    bot.moveMotors(0,0);
   delay(500);
   curve90Circule(bot.vx,0.2,PI/4);  // faz a curva no sentido anti-horário
-  delay(1000);
+  delay(100);
   long start=millis();
-
-  // while(left_distance>=100 || front_distance<=150||right_distance<=100|| millis()-start<=800){ // Faz a curva enquanto as seguintes condições
-  // // Volta a ler distâncias
-  // left_distance=bot.getLeftDistance();
-  // front_distance=bot.getFrontDistance();
-  // right_distance=bot.getRightDistance();
-
-  //   if(left_distance<=50){
-  //   break;
-  // }
-  // }
-  // bot.moveMotors(0,0);
-  // delay(100);
+//|| front_distance<=250||right_distance<=300
+  while(left_distance>=300 || millis()-start<=700){ // Faz a curva enquanto as seguintes condições
+  // Volta a ler distâncias
+  left_distance=bot.getLeftDistance();
+  front_distance=bot.getFrontDistance();
+  right_distance=bot.getRightDistance();
+    if(left_distance<=270){
+      break;
+    }
+  }
+  bot.moveMotors(0,0);
+  delay(200);
   }
 // //Serial.println("  Esquerda: "+(String)left_distance+" Frente:  "+(String)front_distance+"  Direita:  "+(String)right_distance);
 
@@ -212,8 +205,7 @@ if(right_distance<=40 && front_distance<=60){
 
 
 if(right_distance>=600 && front_distance<=450) {
-  // int32_t left_velocity=float_map(constrain(left_distance,0,1300),0,1300,100,12);
-  // int32_t right_velocity=float_map(constrain(left_distance,0, 1300),0,1300,1,59);
+
   bot.moveMotors(0,0);
   delay(200);
   bot.moveMotors(10,10);
@@ -221,31 +213,32 @@ if(right_distance>=600 && front_distance<=450) {
    bot.moveMotors(0,0);
   delay(500);
   curve90Circule(-bot.vx,0.2,PI/4);  // faz a curva no sentido anti-horário
-  delay(700);
+  delay(100);
   long start=millis();
-  // while(left_distance>=bot.align+limiar || right_distance>=bot.align-limiar||  millis()-start<=900){
-  //   // Volta a ler distâncias
-  // left_distance=bot.getLeftDistance();
-  // front_distance=bot.getFrontDistance();
-  // right_distance=bot.getRightDistance();
-  // if(right_distance<=40){
-  //   break;
-  // }
-  // }
-  //   bot.moveMotors(0,0);
-  //   delay(100);
+  //|| left_distance>=400|| 
+  while(right_distance>=300 || millis()-start<=800){
+    // Volta a ler distâncias
+  left_distance=bot.getLeftDistance();
+  front_distance=bot.getFrontDistance();
+  right_distance=bot.getRightDistance();
+  if(right_distance<=270){
+    break;
+  }
+  }
+    bot.moveMotors(0,0);
+    delay(100);
   }
 
 //  // Navegação natural seguindo a parede esquerda
-  if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar ) && front_distance>=65){
+  if((left_distance>=bot.align+limiar || left_distance<=bot.align-limiar) && front_distance>=65){
      last_align=(float)bot.align/1000000.0;
      Serial.println("Last:"+(String)last_align);
     float left_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(800)+50,100,-5);
-    float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50, log(800)+50,-40,60);
+    float right_velocity=float_map(constrain(log(left_distance+limiar)+50,50,log(2*bot.align)+50),50,log(800)+50,-40,60);
     bot.moveMotors(0.5*3.1*left_velocity,0.5*0.3*right_velocity);
   }
 
-//   //Serial.println("x:"+(String)bot.robot_pos.x+"y:"+(String)bot.robot_pos.y+"phi:"+(String)bot.robot_pos.phi);
+// Serial.println("x:"+(String)bot.robot_pos.x+"y:"+(String)bot.robot_pos.y+"phi:"+(String)bot.robot_pos.phi);
 
 delay(50);
 
@@ -256,11 +249,11 @@ delay(50);
   // }
   // delay(100);
   
-}
+// }
 
-else{
+// else{
 
-}
+// }
 
 
 

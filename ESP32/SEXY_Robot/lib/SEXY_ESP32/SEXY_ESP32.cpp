@@ -10,7 +10,7 @@ bool SEXY_ESP32::isTagDetected=false;
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
 TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
 TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
-TaskHandle_t SEXY_ESP32::taskServerHandle;
+// TaskHandle_t SEXY_ESP32::taskServerHandle;
 
 std::vector<vec2> SEXY_ESP32::mapPointCloud;
 
@@ -138,7 +138,7 @@ void SEXY_ESP32::begin() {
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
 	xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
-	xTaskCreatePinnedToCore(taskServer, "TASK_Server", 2000, nullptr, 1, &taskServerHandle, 0);
+	// xTaskCreatePinnedToCore(taskServer, "TASK_Server", 2000, nullptr, 1, &taskServerHandle, 0);
 }
 /**
   @brief Control left motor speed.
@@ -360,37 +360,37 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     digitalWrite(VSPI_SS, 1);
 }
 
-void SEXY_ESP32::taskServer(void*) {
-    Serial.begin(115200);
+// void SEXY_ESP32::taskServer(void*) {
+//     Serial.begin(115200);
 
-    // Connect to Wi-Fi
-    WiFi.begin(ssid, password);
-    Serial.print("Connecting to WiFi");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.print(".");
-    }
-    Serial.println(" connected");
+//     // Connect to Wi-Fi
+//     WiFi.begin(ssid, password);
+//     Serial.print("Connecting to WiFi");
+//     while (WiFi.status() != WL_CONNECTED) {
+//         delay(1000);
+//         Serial.print(".");
+//     }
+//     Serial.println(" connected");
 
-    // Start the web server
-    server.on("/", handleRoot);
-    server.on("/style.css", handleCSS);
-    server.on("/control", handleCommand);
-    server.on("/mode", handleSwitchMode);
-    server.onNotFound(handleNotFound);
+//     // Start the web server
+//     server.on("/", handleRoot);
+//     server.on("/style.css", handleCSS);
+//     server.on("/control", handleCommand);
+//     server.on("/mode", handleSwitchMode);
+//     server.onNotFound(handleNotFound);
 
-    server.begin();
-    server.enableCrossOrigin();
-    Serial.println("HTTP server started");
+//     server.begin();
+//     server.enableCrossOrigin();
+//     Serial.println("HTTP server started");
 
-    // Print the IP address
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
+//     // Print the IP address
+//     Serial.println("IP address: ");
+//     Serial.println(WiFi.localIP());
 
-    while (1) {
-        server.handleClient();
-    }
-}
+//     while (1) {
+//         server.handleClient();
+//     }
+// }
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){	

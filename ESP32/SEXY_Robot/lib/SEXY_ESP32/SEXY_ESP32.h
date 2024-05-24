@@ -124,13 +124,13 @@ private:                        // Index Map:
     static TaskHandle_t taskReceiveSPiComHandle;
     static TaskHandle_t taskGetPointCloudHandle;
     static TaskHandle_t taskUpdatePositionHandle;
-    static TaskHandle_t taskServerHandle;
+    // static TaskHandle_t taskServerHandle;
 
     // TaskFunctions_t
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
     static void taskGetPointCloud(void*);
-    static void taskServer(void*);   
+    // static void taskServer(void*);   
 
 
     // Internal variables
