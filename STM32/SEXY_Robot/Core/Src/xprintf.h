@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 int xprintf(const char* fmt, ...) {
+	return -1; // NO BLOCK RETURN
+
     uint8_t rc = USBD_OK;
     char tmp[128];
 	va_list ptr;

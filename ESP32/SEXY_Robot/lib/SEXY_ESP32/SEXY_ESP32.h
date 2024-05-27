@@ -12,6 +12,8 @@
 #include <WiFi.h>
 #include <vector>
 #include <vec2.hpp>
+#include <WiFi.h>
+
 
 //#include <WiFiUdp.h>
 
@@ -29,10 +31,9 @@ private:                        // Index Map:
     static long previous_distanceMotorR;
 
     static bool enable_send;
-    static bool curving;
-
+   
     // Pin constants
-
+    static constexpr int output26 = 26;
 
     // Motor Pins
     static constexpr uint16_t PIN_MOTOR_L_1 = 17;
@@ -45,7 +46,7 @@ private:                        // Index Map:
 
     // RFID pins
     static constexpr uint8_t RST_PIN = INT8_MAX;   
-    static constexpr uint8_t PIN_RFID_SDA=5;       // pin 4 in robot to use?
+    static constexpr uint8_t PIN_RFID_SDA=4;       // pin 4 in robot to use?
     static constexpr uint8_t PIN_RFID_SCK=18;
     static constexpr uint8_t PIN_RFID_MISO=19;
     static constexpr uint8_t PIN_RFID_MOSI=23;
@@ -101,11 +102,8 @@ private:                        // Index Map:
 
 
     // WIFI constants
-
-    static constexpr char ssid[]="";
-    static constexpr char password[]="";
-
-
+    static char* ssid;
+    static char* password;
     static bool isTagDetected;
 
     // Robot Velocity
@@ -123,14 +121,15 @@ private:                        // Index Map:
     static TaskHandle_t taskReceiveSPiComHandle;
     static TaskHandle_t taskGetPointCloudHandle;
     static TaskHandle_t taskUpdatePositionHandle;
-
-
+    // static TaskHandle_t taskServerHandle;
+    static TaskHandle_t taskGetworkStateHandle;
     // TaskFunctions_t
     static void taskReadRFID(void*);
     static void taskReceiveSPICom(void*);
     static void taskGetPointCloud(void*);
+    static void taskGetworkState(void*);
+    // static void taskServer(void*);   
 
-    
 
 
     // Internal variables
@@ -140,28 +139,35 @@ private:                        // Index Map:
     static MFRC522 RFID_device;
     static VL53L0X LidarFront;
     static Adafruit_ADS1115 gasADC;
+   
     //static WiFiUDP wifi;
 
     // Declarations
-    static void setupWifi();
+
     //static void setupADC();
     static void setupSharps();
     static void setupLidar();
     //static void setupRFID();
     static void setupMotors();
     static void setupSPI();
+    static void setupWifi();
 
 
 public:
+    static WiFiServer server;
     // Robot Atributes
     static float L,r,dotphiL,dotphiR,vx,w,R;
 
-    static constexpr float MAXPERCENT=100;
+    static constexpr float MAXPERCENT=100.0;
     static float PercentL,PercentR;
+
+    static bool rotating;
+
+    static String current_mode;
 
     static uint32_t align;
     
-    static constexpr float MAX_Vx=8.4;
+    static constexpr float MAX_Vx=40.0;
 
     static const uint8_t FRONT=0;
     static const uint8_t BACK=1;

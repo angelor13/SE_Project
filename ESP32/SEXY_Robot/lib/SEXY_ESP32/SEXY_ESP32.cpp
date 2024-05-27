@@ -1,17 +1,25 @@
 #include "SEXY_ESP32.h"
 
+
+
 // Static defines
 bool SEXY_ESP32::isTagDetected=false;
 
 TaskHandle_t SEXY_ESP32::taskReadRFIDHandle;
 TaskHandle_t SEXY_ESP32::taskReceiveSPiComHandle;
 TaskHandle_t SEXY_ESP32::taskGetPointCloudHandle;
+// TaskHandle_t SEXY_ESP32::taskServerHandle;
+TaskHandle_t SEXY_ESP32::taskGetworkStateHandle;
 
 std::vector<vec2> SEXY_ESP32::mapPointCloud;
 
+char* SEXY_ESP32::ssid = "Coiso";
+char* SEXY_ESP32::password = "iimartinsb85";
 
 
 MFRC522 SEXY_ESP32 :: RFID_device (PIN_RFID_SDA,RST_PIN);
+WiFiServer SEXY_ESP32:: server(80);
+
 
 VL53L0X SEXY_ESP32::LidarFront;
 Adafruit_ADS1115 SEXY_ESP32::gasADC;
@@ -25,14 +33,14 @@ float SEXY_ESP32::L=0.1605;
 float SEXY_ESP32::r=0.0455/2;
 float SEXY_ESP32::dotphiL;
 float SEXY_ESP32::dotphiR;
-float SEXY_ESP32::vx=1;
+float SEXY_ESP32::vx=MAX_Vx*r;
 float SEXY_ESP32::w=vx/R;
 float SEXY_ESP32::PercentL=0,PercentR=0;
-bool SEXY_ESP32::curving=false;
+bool SEXY_ESP32::rotating=false;
 uint8_t SEXY_ESP32::currentDirection=FRONT;
 uint32_t SEXY_ESP32::align=0;
 
-
+String SEXY_ESP32::current_mode="off";
 SEXY_ESP32::SEXY_POS SEXY_ESP32::robot_pos;
 
 
@@ -76,17 +84,7 @@ void SEXY_ESP32::setupLidar() {
 /**
  * @brief Initialize Wifi
  */
-void SEXY_ESP32::setupWifi(){
-  WiFi.mode(WIFI_STA);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
-  while (WiFi.status() != WL_CONNECTED) {
-	Serial.print('.');
-	delay(1000);
-  }
-  Serial.println(WiFi.localIP());
-}
+
 
 /**
  * @brief Initialize the Lidar front
@@ -100,10 +98,27 @@ void SEXY_ESP32::setupSharps(){
  * @brief Initialize the SPI
  */
 void SEXY_ESP32::setupSPI(){
+	pinMode(VSPI_SS,OUTPUT);
   SPI.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSi,VSPI_SS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
-  SPI.setFrequency(100000);
+  SPI.setFrequency(10000);
+}
+
+void SEXY_ESP32::setupWifi(){
+	pinMode(output26, OUTPUT);
+  // Set outputs to LOW
+  digitalWrite(output26, LOW);
+	WiFi.begin(ssid, password);
+	while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 /**
@@ -127,11 +142,14 @@ void SEXY_ESP32::begin() {
 	//setupADC();
 	setupSharps();
 	setupLidar();
+	//setupWifi();
 	//setupRFID();
 	setupSPI();
 	//xTaskCreatePinnedToCore(taskReadRFID, "TASK_RFID", 2000, nullptr, 2, &taskReadRFIDHandle,0);
 	xTaskCreatePinnedToCore(taskReceiveSPICom, "TASK_SPI_COM", 2000, nullptr, 1, &taskReceiveSPiComHandle, 0);
 	//xTaskCreatePinnedToCore(taskGetPointCloud, "TASK_SLAM_POINTS", 2000, nullptr, 1, &taskGetPointCloudHandle, 0);
+	// xTaskCreatePinnedToCore(taskServer, "TASK_Server", 2000, nullptr, 1, &taskServerHandle, 0);
+	//xTaskCreatePinnedToCore(taskGetworkState, "TASK_taskGetworkStateHandle", 2000, nullptr, 1, &taskGetworkStateHandle, 0);
 }
 /**
   @brief Control left motor speed.
@@ -279,6 +297,63 @@ bool SEXY_ESP32::Tag_Detected(){
 	  //Serial.println("Funcao2");
 	return false;
   }
+
+//   WiFiClient client = server.available(); 
+//   if (client) {                             // if you get a client,
+//     Serial.println("New Client.");           // print a message out the serial port
+//     String currentLine = "";                // make a String to hold incoming data from the client
+//     while (client.connected()) {            // loop while the client's connected
+//       if (client.available()) {             // if there's bytes to read from the client,
+//         char c = client.read();             // read a byte, then
+//         Serial.write(c);                    // print it out the serial monitor
+//         if (c == '\n') {                    // if the byte is a newline character
+
+//           // if the current line is blank, you got two newline characters in a row.
+//           // that's the end of the client HTTP request, so send a response:
+//           if (currentLine.length() == 0) {
+//             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+//             // and a content-type so the client knows what's coming, then a blank line:
+//             client.println("HTTP/1.1 200 OK");
+//             client.println("Content-type:text/html");
+//             client.println();
+
+//             // the content of the HTTP response follows the header:
+//             client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 5 on.<br>");
+//             client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 5 off.<br>");
+
+            
+//             client.printf("\n Send coordinates: ");
+//             robot_pos.x,robot_pos.y,robot_pos.phi = client.read();
+//             delay(500);
+
+            
+//             // The HTTP response ends with another blank line:
+//             client.println();
+//             // break out of the while loop:
+//             break;
+//           } else {    // if you got a newline, then clear currentLine:
+//             currentLine = "";
+//           }
+//         } else if (c != '\r') {  // if you got anything else but a carriage return character,
+//           currentLine += c;      // add it to the end of the currentLine
+//         }
+
+//         // Check to see if the client request was "GET /H" or "GET /L":
+//         if (currentLine.endsWith("GET /H")) {
+//           digitalWrite(15, HIGH);               // GET /H turns the LED on
+//         }
+//         if (currentLine.endsWith("GET /L")) {
+//           digitalWrite(15, LOW);                // GET /L turns the LED off
+//         }
+//       }
+//     }
+//     // close the connection:
+//     client.stop();
+//     Serial.println("Client Disconnected.");
+//     Serial.printf("Received coordinates: %d %d  %d", robot_pos.x,robot_pos.y,robot_pos.phi);
+    
+    
+  //}
 	return true;
 }
 /**
@@ -335,16 +410,16 @@ vec2 SEXY_ESP32::getMotorVelocity() {
 /// @brief Set motor velocities in [#PULSES] / [#MILLISECONDS]. Negative values mean inverted direction. [TO BE IMPLEMENTED ON STM32]
 void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
 	float raio=r*100;
-    const int pulse_n_per_rot=1470;
-    float left_omega = left_velocity / raio;
+  const int pulse_n_per_rot=1470;
+  float left_omega = left_velocity / raio;
 	float righ_omega = right_velocity / raio;
 
-    float dptL = constrain((left_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
+  float dptL = constrain((left_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
 	float dptR = constrain((righ_omega * pulse_n_per_rot) / (2*PI),-65535,65535);
 
-    int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
-	Serial.println(dptL);
-	Serial.println(dptR);
+  int32_t txdata[2] = { (int32_t) dptL, (int32_t) dptR };
+	Serial.println(txdata[0]);
+	Serial.println(txdata[1]);
 
     digitalWrite(VSPI_SS, 0);
     SPI.write(0xDE);
@@ -352,6 +427,38 @@ void SEXY_ESP32::setMotorVelocity(float left_velocity, float right_velocity) {
     SPI.transfer(txdata, sizeof(txdata));
     digitalWrite(VSPI_SS, 1);
 }
+
+// void SEXY_ESP32::taskServer(void*) {
+//     Serial.begin(115200);
+
+//     // Connect to Wi-Fi
+//     WiFi.begin(ssid, password);
+//     Serial.print("Connecting to WiFi");
+//     while (WiFi.status() != WL_CONNECTED) {
+//         delay(1000);
+//         Serial.print(".");
+//     }
+//     Serial.println(" connected");
+
+//     // Start the web server
+//     server.on("/", handleRoot);
+//     server.on("/style.css", handleCSS);
+//     server.on("/control", handleCommand);
+//     server.on("/mode", handleSwitchMode);
+//     server.onNotFound(handleNotFound);
+
+//     server.begin();
+//     server.enableCrossOrigin();
+//     Serial.println("HTTP server started");
+
+//     // Print the IP address
+//     Serial.println("IP address: ");
+//     Serial.println(WiFi.localIP());
+
+//     while (1) {
+//         server.handleClient();
+//     }
+// }
 
 void SEXY_ESP32::taskReceiveSPICom(void*){
   while(1){	
@@ -373,44 +480,16 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 	Serial.println("dotphiL:  "+(String)dotphiL);
 	Serial.println("dotphiR:  "+(String)dotphiR);
 
-	distanceMotorL+=2*PI*r*dotphiL*(current_millis-previous_millis)/1000;
-	distanceMotorR+=2*PI*r*dotphiR*(current_millis-previous_millis)/1000;
+	distanceMotorL+=2*PI*dotphiL*(current_millis-previous_millis)/1000;
+	distanceMotorR+=2*PI*dotphiR*(current_millis-previous_millis)/1000;
 	
 
 
-	//--------------------- ODOMETRIA ----------------------------------
-
-	// if(!getCurvingState()){
-	// 	if(currentDirection==FRONT){
-	// 		//robot_pos.x+=align;
-	// 		robot_pos.y+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		robot_pos.phi=PI/2;
-	// 		robot_pos.vetor[0]=0;
-	// 		robot_pos.vetor[1]=1;
-	// 	}
-	// 	else if (currentDirection==LEFT){
-	// 		robot_pos.x-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		//robot_pos.y-=align;
-	// 		robot_pos.phi=PI;
-	// 		robot_pos.vetor[0]=-1;
-	// 		robot_pos.vetor[1]=0;
-	// 	}
-	// 	else if (currentDirection==RIGHT){
-	// 		robot_pos.x+=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		//robot_pos.y-=align;
-	// 		robot_pos.phi=0;
-	// 		robot_pos.vetor[0]=1;
-	// 		robot_pos.vetor[1]=0;
-	// 	}
-	// 	else{
-	// 		//robot_pos.x+=align;
-	// 		robot_pos.y-=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
-	// 		robot_pos.phi=-PI/2;
-	// 		robot_pos.vetor[0]=0;
-	// 		robot_pos.vetor[1]=-1;
-	// 	}
-	// }
-	// else{	// Aquando a curva
+	//--------------------- ODOMETRIA ------------------------------------------
+		if(rotating){
+			robot_pos.phi+=PI/2;
+		}
+		else{
 		uint32_t delta_d=((distanceMotorL-previous_distanceMotorL)+(distanceMotorR-previous_distanceMotorR))/2;
 		float raio=R;
 		float delta_phi=w*(current_millis-previous_millis);	
@@ -420,18 +499,111 @@ void SEXY_ESP32::taskReceiveSPICom(void*){
 		//robot_pos.phi+= delta_phi;
 		
 		robot_pos.phi+=delta_phi; 	// another way to program or maybe the best way
-		
-	//}
+			// if(robot_pos.phi>=2*PI){
+			// 	robot_pos.phi=robot_pos.phi % (2*PI);
+			// }
+		}
+
 	previous_distanceMotorL=distanceMotorL;
 	previous_distanceMotorR=distanceMotorR;
 
 	previous_millis=current_millis;
 
-	delay(500);
+	delay(10);
   }
 }
 
+void SEXY_ESP32:: taskGetworkState(void*){
+String header;
+unsigned long previousTime =0;
+unsigned long currentTime = millis();
+const long timeoutTime = 2000;
+while(1){
+WiFiClient client = server.available();   // Listen for incoming clients
 
+  if (client) {                             // If a new client connects,
+    currentTime = millis();
+    previousTime = currentTime;
+    Serial.println("New Client.");          // print a message out in the serial port
+    String currentLine = "";                // make a String to hold incoming data from the client
+    while (client.connected() && currentTime - previousTime <= timeoutTime) {  // loop while the client's connected
+      currentTime = millis();
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        header += c;
+        if (c == '\n') {                    // if the byte is a newline character
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (currentLine.length() == 0) {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+            
+            // turns the GPIOs on and off
+            if (header.indexOf("GET /26/on") >= 0) {
+              Serial.println("GPIO 26 on");
+              current_mode = "on";
+              digitalWrite(output26, HIGH);
+            } else if (header.indexOf("GET /26/off") >= 0) {
+              Serial.println("GPIO 26 off");
+              current_mode = "off";
+              digitalWrite(output26, LOW);
+            } 
+            
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+            // CSS to style the on/off buttons 
+            // Feel free to change the background-color and font-size attributes to fit your preferences
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #555555;}</style></head>");
+            
+            // Web Page Heading
+            client.println("<body><h1>Robot Start</h1>");
+            
+            // Display current state, and ON/OFF buttons for GPIO 26  
+            client.println("<p>Start - State " + current_mode + "</p>");
+            // If the output26State is off, it displays the ON button       
+            if (current_mode=="off") {
+              client.println("<p><a href=\"/26/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/26/off\"><button class=\"button button2\">OFF</button></a></p>");
+            } 
+               
+            
+            client.println("</body></html>");
+            
+            // The HTTP response ends with another blank line
+            client.println();
+            // Break out of the while loop
+            break;
+          } else { // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+      }
+    }
+    // Clear the header variable
+    header = "";
+    Serial.println(current_mode);
+    // Close the connection
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
+   delay(20);
+}
+ 
+}
 // NOt to use
 
 
@@ -471,19 +643,8 @@ void SEXY_ESP32::taskGetPointCloud(void*){
 }
 
 
-void SEXY_ESP32::changeCurvingState(){
-	if(curving==false){
-		curving=true;
-	}
-	else{
-		curving=false;
-	}
-}
 
 
-bool SEXY_ESP32::getCurvingState(){
-	return curving;
-}
 
 void SEXY_ESP32::taskReadRFID(void*){
   while(1){
